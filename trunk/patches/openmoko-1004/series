@@ -4,3 +4,4 @@ linux-gta01.patch
 preferred-openmoko-versions.patch
 openmoko-dates.patch
 uboot-gta01.patch
+openmoko-dialer.patch
