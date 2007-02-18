@@ -3,9 +3,18 @@
 # Copyright (c) 2007  Rod Whitby <rod@whitby.id.au>
 # All rights reserved.
 # 
-# Redistribution and use, with or without modification, is permitted
-# according to the MIT license, a copy of which can be found at
-# http://www.opensource.org/licenses/mit-license.php
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# version 2 as published by the Free Software Foundation.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
 
 OPENMOKO_SVN_REV = 1004
 OPENMOKO_MTN_REV = f499733e6db527846e1a48cf70f9862d6b3798ae
@@ -16,19 +25,19 @@ MTN_VERSION := $(shell mtn --version | awk '{ print $$2; }')
 all: openmoko-devel-image
 
 .PHONY: setup
-setup:  setup-bitbake setup-monotone setup-openembedded setup-openmoko setup-sources \
-	setup-patches setup-config setup-env
+setup:  setup-bitbake setup-mtn setup-openembedded setup-openmoko setup-patches \
+	setup-config setup-env
 
 .PHONY: update
-update: update-openmoko update-bitbake update-mtn update-openembedded update-patches
+update: update-bitbake update-mtn update-openembedded update-patches update-openmoko
 
 .PHONY: setup-bitbake
 setup-bitbake bitbake/bin/bitbake:
 	[ -e bitbake ] || \
 	( svn co svn://svn.berlios.de/bitbake/branches/bitbake-1.6 bitbake )
 
-.PHONY: setup-monotone
-setup-monotone OE.mtn:
+.PHONY: setup-mtn
+setup-mtn OE.mtn:
 	[ -e OE.mtn ] || \
 	( wget -O OE.mtn.bz2 http://www.openembedded.org/snapshots/OE-this-is-for-mtn-${MTN_VERSION}.mtn.bz2 && \
 	  bunzip2 OE.mtn.bz2 && \
@@ -41,6 +50,13 @@ setup-openembedded openembedded/_MTN/revision: OE.mtn
 		-r ${OPENMOKO_MTN_REV} openembedded )
 	perl -pi.orig -e 's/ *$$//;s/\r//g' \
 		openembedded/packages/gcc/gcc-4.1.1/gcc-4.1.1-pr13685-1.patch
+	mkdir -p sources
+	[ -e sources/js-1.5.tar.gz ] || \
+	( cd sources ; \
+	  wget http://ftp.mozilla.org/pub/mozilla.org/js/older-packages/js-1.5.tar.gz )
+	[ -e sources/samba-3.0.14a.tar.gz ] || \
+	( cd sources ; \
+	  wget http://us4.samba.org/samba/ftp/stable/samba-3.0.14a.tar.gz )
 	touch openembedded/_MTN/revision
 
 .PHONY: setup-openmoko
@@ -50,22 +66,14 @@ setup-openmoko openmoko/trunk/oe/conf/site.conf:
 	[ -e oe ] || \
 	( ln -s openmoko/trunk/oe . )
 
-.PHONY: setup-sources
-setup-sources:
-	mkdir -p sources
-	[ -e sources/js-1.5.tar.gz ] || \
-	( cd sources ; \
-	  wget http://ftp.mozilla.org/pub/mozilla.org/js/older-packages/js-1.5.tar.gz )
-	[ -e sources/samba-3.0.14a.tar.gz ] || \
-	( cd sources ; \
-	  wget http://us4.samba.org/samba/ftp/stable/samba-3.0.14a.tar.gz )
-
 .PHONY: setup-patches
 setup-patches patches/openmoko-${OPENMOKO_SVN_REV}: openmoko/trunk/oe/conf/site.conf
 	[ -e openmoko/patches ] && \
-	( cd openmoko ; quilt pop -a -f ; svn revert -R .)
+	( cd openmoko ; quilt pop -a -f ) || true
+	( cd openmoko ; svn revert -R . )
 	[ -e patches ] || \
-	( svn co http://svn.projects.openmoko.org/var/lib/gforge/chroot/svnroot/mokomakefile/patches patches )
+	( svn co svn://svn.projects.openmoko.org//var/lib/gforge/chroot/svnroot/mokomakefile/trunk/patches patches )
+	[ -e patches/openmoko-${OPENMOKO_SVN_REV} ] && \
 	( cd openmoko ; rm -f patches ; \
 	  ln -s ../patches/openmoko-${OPENMOKO_SVN_REV} patches ; \
 	  quilt push -a )
@@ -96,18 +104,6 @@ update-makefile:
 check-makefile:
 	( wget -q -O - http://www.rwhitby.net/files/openmoko/Makefile | diff -u Makefile - )
 
-.PHONY: update-openmoko
-update-openmoko: openmoko/trunk/oe/conf/site.conf
-	( cd openmoko ; quilt pop -a -f ; svn revert -R .)
-	( cd openmoko ; svn update -r ${OPENMOKO_SVN_REV} )
-	( cd openmoko ; rm -f patches ; \
-	  ln -s ../patches/openmoko-${OPENMOKO_SVN_REV} patches ; \
-	  quilt push -a )
-
-.PHONY: update-patches
-update-patches: 
-	( cd patches ; svn update )
-
 .PHONY: update-bitbake
 update-bitbake: bitbake/bin/bitbake
 	( cd bitbake ; svn update )
@@ -125,6 +121,20 @@ update-openembedded: update-mtn openembedded/_MTN/revision
 	if [ `mtn --db=OE.mtn automate heads org.openembedded.dev | wc -l` != "1" ] ; then \
 	  mtn --db=OE.mtn merge -b org.openembedded.dev ; \
 	fi
+
+.PHONY: update-patches
+update-patches: 
+	( cd patches ; svn update )
+
+.PHONY: update-openmoko
+update-openmoko: openmoko/trunk/oe/conf/site.conf
+	( cd openmoko ; quilt pop -a -f ) || true
+	( cd openmoko ; svn revert -R . )
+	( cd openmoko ; svn update -r ${OPENMOKO_SVN_REV} )
+	[ -e patches/openmoko-${OPENMOKO_SVN_REV} ] && \
+	( cd openmoko ; rm -f patches ; \
+	  ln -s ../patches/openmoko-${OPENMOKO_SVN_REV} patches ; \
+	  quilt push -a )
 
 .PHONY: openmoko-devel-image
 openmoko-devel-image: \
