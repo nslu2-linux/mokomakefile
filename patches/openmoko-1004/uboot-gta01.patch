@@ -1,0 +1,17 @@
+---
+ trunk/oe/packages/uboot/uboot-gta01_svn.bb |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+Index: openmoko/trunk/oe/packages/uboot/uboot-gta01_svn.bb
+===================================================================
+--- openmoko.orig/trunk/oe/packages/uboot/uboot-gta01_svn.bb
++++ openmoko/trunk/oe/packages/uboot/uboot-gta01_svn.bb
+@@ -10,7 +10,7 @@
+ S = "${WORKDIR}/git"
+ 
+ SRC_URI = "git://www.denx.de/git/u-boot.git/;protocol=git \
+-           svn://svn.openmoko.org/trunk/src/target/u-boot;module=patches;proto=http"
++           svn://svn.openmoko.org/trunk/src/target/u-boot;module=patches;proto=http;rev=1003"
+ 
+ EXTRA_OEMAKE = "CROSS_COMPILE=${TARGET_PREFIX}"
+ TARGET_LDFLAGS = ""
