@@ -1,0 +1,11 @@
+Index: openmoko/trunk/oe/packages/openmoko-apps/openmoko-mainmenu_svn.bb
+===================================================================
+--- openmoko/trunk/oe/packages/openmoko-apps/openmoko-mainmenu_svn.bb	(revision 1004)
++++ openmoko/trunk/oe/packages/openmoko-apps/openmoko-mainmenu_svn.bb	(working copy)
+@@ -4,3 +4,6 @@
+ 
+ inherit openmoko
+ 
++do_compile_prepend() {
++	sed -i -e 's:$(AM_LDFLAGS):$(AM_LDFLAGS)\ -lmb:' src/Makefile
++}
