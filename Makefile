@@ -3,18 +3,9 @@
 # Copyright (c) 2007  Rod Whitby <rod@whitby.id.au>
 # All rights reserved.
 # 
-# This program is free software; you can redistribute it and/or
-# modify it under the terms of the GNU General Public License
-# version 2 as published by the Free Software Foundation.
-
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
+# Redistribution and use, with or without modification, is permitted
+# according to the MIT license, a copy of which can be found at
+# http://www.opensource.org/licenses/mit-license.php
 
 OPENMOKO_SVN_REV = 1004
 OPENMOKO_MTN_REV = f499733e6db527846e1a48cf70f9862d6b3798ae
@@ -25,40 +16,11 @@ MTN_VERSION := $(shell mtn --version | awk '{ print $$2; }')
 all: openmoko-devel-image
 
 .PHONY: setup
-setup:  setup-openmoko setup-bitbake setup-monotone setup-openembedded \
-	setup-sources setup-config setup-env
+setup:  setup-bitbake setup-monotone setup-openembedded setup-openmoko setup-sources \
+	setup-patches setup-config setup-env
 
 .PHONY: update
-update: update-openmoko update-bitbake update-mtn update-openembedded
-
-.PHONY: setup-openmoko
-setup-openmoko openmoko/trunk/oe/conf/site.conf:
-	[ -e openmoko ] || \
-	( svn co -r ${OPENMOKO_SVN_REV} http://svn.openmoko.org/ openmoko )
-	[ -e oe ] || \
-	( ln -s openmoko/trunk/oe . )
-	perl -pi.orig -e 's|trunk/src/target/kernel;|branches/src/target/kernel/2.6.17.14;rev=1003;|' \
-		openmoko/trunk/oe/packages/linux/linux-gta01_2.6.17.14.bb
-	grep -e 'do_compile_prepend' openmoko/trunk/oe/packages/openmoko-apps/openmoko-mainmenu_svn.bb > /dev/null || \
-	( echo "do_compile_prepend() {" >> openmoko/trunk/oe/packages/openmoko-apps/openmoko-mainmenu_svn.bb ; \
-	  echo "	sed -i -e 's:\$$(AM_LDFLAGS):\$$(AM_LDFLAGS)\ -lmb:' src/Makefile" >> openmoko/trunk/oe/packages/openmoko-apps/openmoko-mainmenu_svn.bb ; \
-	  echo "}" >> openmoko/trunk/oe/packages/openmoko-apps/openmoko-mainmenu_svn.bb )
-	grep -e 'do_install_prepend' openmoko/trunk/oe/packages/openmoko-apps/openmoko-simplemediaplayer_svn.bb > /dev/null || \
-	( echo "do_install_prepend() {" >> openmoko/trunk/oe/packages/openmoko-apps/openmoko-simplemediaplayer_svn.bb ; \
-	  echo "	touch mkinstalldirs" >> openmoko/trunk/oe/packages/openmoko-apps/openmoko-simplemediaplayer_svn.bb ; \
-	  echo "}" >> openmoko/trunk/oe/packages/openmoko-apps/openmoko-simplemediaplayer_svn.bb ; \
-	  echo >> openmoko/trunk/oe/packages/openmoko-apps/openmoko-simplemediaplayer_svn.bb ; \
-	  echo "FILES_\$${PN} += \" \\" >> openmoko/trunk/oe/packages/openmoko-apps/openmoko-simplemediaplayer_svn.bb ; \
-	  echo "                \$${datadir}/images \\" >> openmoko/trunk/oe/packages/openmoko-apps/openmoko-simplemediaplayer_svn.bb ; \
-	  echo "		\$${libdir}/bmp/*/*.so \\" >> openmoko/trunk/oe/packages/openmoko-apps/openmoko-simplemediaplayer_svn.bb ; \
-	  echo "	       \"" >> openmoko/trunk/oe/packages/openmoko-apps/openmoko-simplemediaplayer_svn.bb )
-	perl -pi.orig -e 's|DEPENDS \+= "libgsmd"|DEPENDS += "libgsmd eds-dbus"|' \
-		openmoko/trunk/oe/packages/openmoko-apps/openmoko-dialer_svn.bb
-	# Remove u-boot, cause it's annoyingly rebuilt every time, and doesn't build any more.
-	perl -pi.orig -e 's|DEPENDS \+= "quilt-native uboot-gta01"|DEPENDS += "quilt-native"|' \
-		openmoko/trunk/oe/packages/linux/linux-gta01_2.6.17.14.bb
-	perl -pi.orig -e 's|	uboot-mkimage|	# uboot-mkimage|' \
-		openmoko/trunk/oe/packages/linux/linux-gta01_2.6.17.14.bb
+update: update-openmoko update-bitbake update-mtn update-openembedded update-patches
 
 .PHONY: setup-bitbake
 setup-bitbake bitbake/bin/bitbake:
@@ -69,8 +31,8 @@ setup-bitbake bitbake/bin/bitbake:
 setup-monotone OE.mtn:
 	[ -e OE.mtn ] || \
 	( wget -O OE.mtn.bz2 http://www.openembedded.org/snapshots/OE-this-is-for-mtn-${MTN_VERSION}.mtn.bz2 && \
-	  bunzip2 OE.mtn.bz2 )
-	mtn --db=OE.mtn pull monotone.openembedded.org org.openembedded.dev
+	  bunzip2 OE.mtn.bz2 && \
+	  mtn --db=OE.mtn pull monotone.openembedded.org org.openembedded.dev )
 
 .PHONY: setup-openembedded
 setup-openembedded openembedded/_MTN/revision: OE.mtn
@@ -81,6 +43,13 @@ setup-openembedded openembedded/_MTN/revision: OE.mtn
 		openembedded/packages/gcc/gcc-4.1.1/gcc-4.1.1-pr13685-1.patch
 	touch openembedded/_MTN/revision
 
+.PHONY: setup-openmoko
+setup-openmoko openmoko/trunk/oe/conf/site.conf:
+	[ -e openmoko ] || \
+	( svn co -r ${OPENMOKO_SVN_REV} http://svn.openmoko.org/ openmoko )
+	[ -e oe ] || \
+	( ln -s openmoko/trunk/oe . )
+
 .PHONY: setup-sources
 setup-sources:
 	mkdir -p sources
@@ -90,6 +59,16 @@ setup-sources:
 	[ -e sources/samba-3.0.14a.tar.gz ] || \
 	( cd sources ; \
 	  wget http://us4.samba.org/samba/ftp/stable/samba-3.0.14a.tar.gz )
+
+.PHONY: setup-patches
+setup-patches patches/openmoko-${OPENMOKO_SVN_REV}: openmoko/trunk/oe/conf/site.conf
+	[ -e openmoko/patches ] && \
+	( cd openmoko ; quilt pop -a -f ; svn revert -R .)
+	[ -e patches ] || \
+	( svn co http://svn.projects.openmoko.org/var/lib/gforge/chroot/svnroot/mokomakefile/patches patches )
+	( cd openmoko ; rm -f patches ; \
+	  ln -s ../patches/openmoko-${OPENMOKO_SVN_REV} patches ; \
+	  quilt push -a )
 
 .PHONY: setup-config
 setup-config build/conf/local.conf:
@@ -119,7 +98,15 @@ check-makefile:
 
 .PHONY: update-openmoko
 update-openmoko: openmoko/trunk/oe/conf/site.conf
+	( cd openmoko ; quilt pop -a -f ; svn revert -R .)
 	( cd openmoko ; svn update -r ${OPENMOKO_SVN_REV} )
+	( cd openmoko ; rm -f patches ; \
+	  ln -s ../patches/openmoko-${OPENMOKO_SVN_REV} patches ; \
+	  quilt push -a )
+
+.PHONY: update-patches
+update-patches: 
+	( cd patches ; svn update )
 
 .PHONY: update-bitbake
 update-bitbake: bitbake/bin/bitbake

@@ -1,25 +1,23 @@
 ---
- trunk/oe/packages/openmoko-pim/openmoko-dates/compile-fix.patch |   12 ++++++++++
- trunk/oe/packages/openmoko-pim/openmoko-dates_svn.bb            |    3 +-
- 2 files changed, 14 insertions(+), 1 deletion(-)
+ trunk/oe/packages/openmoko-pim/openmoko-dates/compile-fix.patch |   10 ++++++++++
+ trunk/oe/packages/openmoko-pim/openmoko-dates_svn.bb            |    3 ++-
+ 2 files changed, 12 insertions(+), 1 deletion(-)
 
 Index: openmoko/trunk/oe/packages/openmoko-pim/openmoko-dates/compile-fix.patch
 ===================================================================
 --- /dev/null
 +++ openmoko/trunk/oe/packages/openmoko-pim/openmoko-dates/compile-fix.patch
-@@ -0,0 +1,12 @@
-+Index: omoko/src/dates_navigator.c
-+===================================================================
-+--- omoko.orig/src/dates_navigator.c	2007-02-06 16:49:45.000000000 +0100
-++++ omoko/src/dates_navigator.c	2007-02-06 16:51:18.000000000 +0100
-+@@ -18,7 +18,6 @@
-+ 
-+ #include <string.h>
-+ 
-+-#include <libedataserver/e-data-server-util.h>
+@@ -0,0 +1,10 @@
++--- omoko/src/dates_navigator.c~	2007-02-17 15:54:36.000000000 +1030
+++++ omoko/src/dates_navigator.c	2007-02-17 15:55:10.000000000 +1030
++@@ -21,7 +21,6 @@
 + #include <libecal/e-cal.h>
 + #include <libecal/e-cal-time-util.h>
 + #include <libical/ical.h>
++-#include <libedataserver/e-data-server-util.h>
++ 
++ #include <gtk/gtk.h>
++ #include <glib/gi18n.h>
 Index: openmoko/trunk/oe/packages/openmoko-pim/openmoko-dates_svn.bb
 ===================================================================
 --- openmoko.orig/trunk/oe/packages/openmoko-pim/openmoko-dates_svn.bb
