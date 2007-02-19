@@ -16,10 +16,15 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
 
-OPENMOKO_SVN_REV = 1004
+# OPENMOKO_SVN_REV = 1004
+OPENMOKO_SVN_REV = HEAD
 OPENMOKO_MTN_REV = f499733e6db527846e1a48cf70f9862d6b3798ae
 
 MTN_VERSION := $(shell mtn --version | awk '{ print $$2; }')
+
+ifdef OPENMOKO_MTN_REV
+MTN_REV_FLAGS = -r ${OPENMOKO_MTN_REV}
+endif
 
 .PHONY: all
 all: openmoko-devel-image
@@ -47,7 +52,7 @@ setup-mtn OE.mtn:
 setup-openembedded openembedded/_MTN/revision: OE.mtn
 	[ -e openembedded/_MTN/revision ] || \
 	( mtn --db=OE.mtn checkout --branch=org.openembedded.dev \
-		-r ${OPENMOKO_MTN_REV} openembedded )
+		${MTN_REV_FLAGS} openembedded )
 	perl -pi.orig -e 's/ *$$//;s/\r//g' \
 		openembedded/packages/gcc/gcc-4.1.1/gcc-4.1.1-pr13685-1.patch
 	mkdir -p sources
@@ -67,16 +72,17 @@ setup-openmoko openmoko/trunk/oe/conf/site.conf:
 	( ln -s openmoko/trunk/oe . )
 
 .PHONY: setup-patches
-setup-patches patches/openmoko-${OPENMOKO_SVN_REV}: openmoko/trunk/oe/conf/site.conf
+setup-patches: openmoko/trunk/oe/conf/site.conf
 	[ -e openmoko/patches ] && \
 	( cd openmoko ; quilt pop -a -f ) || true
 	( cd openmoko ; svn revert -R . )
 	[ -e patches ] || \
 	( svn co svn://svn.projects.openmoko.org//var/lib/gforge/chroot/svnroot/mokomakefile/trunk/patches patches )
-	[ -e patches/openmoko-${OPENMOKO_SVN_REV} ] && \
+	[ ! -e patches/openmoko-${OPENMOKO_SVN_REV} ] || \
 	( cd openmoko ; rm -f patches ; \
-	  ln -s ../patches/openmoko-${OPENMOKO_SVN_REV} patches ; \
-	  quilt push -a )
+	  ln -s ../patches/openmoko-${OPENMOKO_SVN_REV} patches )
+	[ ! -e openmoko/patches/series ] || \
+	( cd openmoko ; quilt push -a )
 
 .PHONY: setup-config
 setup-config build/conf/local.conf:
@@ -117,7 +123,7 @@ update-openembedded: update-mtn openembedded/_MTN/revision
 	if [ `mtn --db=OE.mtn automate heads org.openembedded.dev | wc -l` != "1" ] ; then \
 	  mtn --db=OE.mtn merge -b org.openembedded.dev ; \
 	fi
-	( cd openembedded ; mtn update -r ${OPENMOKO_MTN_REV} )
+	( cd openembedded ; mtn update ${MTN_REV_FLAGS} )
 	if [ `mtn --db=OE.mtn automate heads org.openembedded.dev | wc -l` != "1" ] ; then \
 	  mtn --db=OE.mtn merge -b org.openembedded.dev ; \
 	fi
@@ -131,10 +137,11 @@ update-openmoko: openmoko/trunk/oe/conf/site.conf
 	( cd openmoko ; quilt pop -a -f ) || true
 	( cd openmoko ; svn revert -R . )
 	( cd openmoko ; svn update -r ${OPENMOKO_SVN_REV} )
-	[ -e patches/openmoko-${OPENMOKO_SVN_REV} ] && \
+	[ ! -e patches/openmoko-${OPENMOKO_SVN_REV} ] || \
 	( cd openmoko ; rm -f patches ; \
-	  ln -s ../patches/openmoko-${OPENMOKO_SVN_REV} patches ; \
-	  quilt push -a )
+	  ln -s ../patches/openmoko-${OPENMOKO_SVN_REV} patches )
+	[ ! -e openmoko/patches/series ] || \
+	( cd openmoko ; quilt push -a )
 
 .PHONY: openmoko-devel-image
 openmoko-devel-image: \
