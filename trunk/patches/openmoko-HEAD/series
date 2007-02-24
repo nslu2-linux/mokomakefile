@@ -1,4 +1,4 @@
 #site.patch
 #preferred-openmoko-versions.patch
 openmoko-mainmenu.patch
-openmoko-dates.patch
+#openmoko-dates.patch
