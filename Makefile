@@ -22,6 +22,10 @@ OPENMOKO_MTN_REV = f499733e6db527846e1a48cf70f9862d6b3798ae
 
 MTN_VERSION := $(shell mtn --version | awk '{ print $$2; }')
 
+ifndef MTN_VERSION
+$(error Cannot determine version for monotone using "mtn --version")
+endif
+
 ifdef OPENMOKO_MTN_REV
 MTN_REV_FLAGS = -r ${OPENMOKO_MTN_REV}
 endif
