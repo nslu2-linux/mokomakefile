@@ -17,7 +17,6 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor,
 # Boston, MA  02110-1301, USA
 
-# OPENMOKO_SVN_REV = 1004
 OPENMOKO_SVN_REV = HEAD
 OPENMOKO_MTN_REV = f499733e6db527846e1a48cf70f9862d6b3798ae
 
@@ -30,8 +29,11 @@ endif
 OE_SNAPSHOT_SITE := http://www.openembedded.org/snapshots
 OE_SNAPSHOT_NAME := OE-this-is-for-mtn-${MTN_VERSION}.mtn.bz2
 
-MM_SVN_SITE := svn.projects.openmoko.org
-MM_SVN_PATH := /var/lib/gforge/chroot/svnroot/mokomakefile
+# Set it back to these (svn:// protocol) when anon svn is fixed.
+# MM_SVN_SITE := svn.projects.openmoko.org
+# MM_SVN_PATH := /var/lib/gforge/chroot/svnroot/mokomakefile
+MM_SVN_SITE := svn.nslu2-linux.org
+MM_SVN_PATH := /svnroot/mokomakefile
 
 .PHONY: all
 all: openmoko-devel-image
@@ -85,7 +87,7 @@ setup-patches: openmoko/trunk/oe/conf/site.conf
 	( cd openmoko ; quilt pop -a -f ) || true
 	( cd openmoko ; svn revert -R . )
 	[ -e patches ] || \
-	( svn co svn://${MM_SVN_SITE}/${MM_REPO_PATH}/trunk/patches patches )
+	( svn co http://${MM_SVN_SITE}/${MM_SVN_PATH}/trunk/patches patches )
 	[ ! -e patches/openmoko-${OPENMOKO_SVN_REV} ] || \
 	( cd openmoko ; rm -f patches ; \
 	  ln -s ../patches/openmoko-${OPENMOKO_SVN_REV} patches )
