@@ -70,12 +70,15 @@ setup-openembedded openembedded/_MTN/revision: OE.mtn
 	perl -pi.orig -e 's/ *$$//;s/\r//g' \
 		openembedded/packages/gcc/gcc-4.1.1/gcc-4.1.1-pr13685-1.patch
 	mkdir -p sources
-	[ -e sources/js-1.5.tar.gz ] || \
-	( cd sources ; wget \
-	http://ftp.mozilla.org/pub/mozilla.org/js/older-packages/js-1.5.tar.gz )
-	[ -e sources/samba-3.0.14a.tar.gz ] || \
+	[ -e build/tmp/stamps/armv4t-linux/js-1.5-r0.do_fetch ] || \
+	( cd sources ; wget http://ftp.mozilla.org/pub/mozilla.org/js/older-packages/js-1.5.tar.gz ; \
+	  mkdir -p build/tmp/stamps/armv4t-linux ; \
+	  touch build/tmp/stamps/armv4t-linux/js-1.5-r0.do_fetch )
+	[ -e build/tmp/stamps/armv4t-linux/samba-3.0.14a-r15.do_fetch ] || \
 	( cd sources ; \
-	  wget http://us4.samba.org/samba/ftp/stable/samba-3.0.14a.tar.gz )
+	  wget http://us4.samba.org/samba/ftp/stable/samba-3.0.14a.tar.gz ; \
+	  mkdir -p build/tmp/stamps/armv4t-linux ; \
+	  touch build/tmp/stamps/armv4t-linux/samba-3.0.14a-r15.do_fetch )
 	touch openembedded/_MTN/revision
 
 .PHONY: setup-openmoko
