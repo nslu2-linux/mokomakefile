@@ -58,7 +58,7 @@ setup-bitbake bitbake/bin/bitbake:
 .PHONY: setup-mtn
 setup-mtn OE.mtn:
 	[ -e OE.mtn ] || \
-	( wget -O OE.mtn.bz2 ${OE_SNAPSHOT_SITE}/${OE_SNAPSHOT_NAME} && \
+	( wget -c -O OE.mtn.bz2 ${OE_SNAPSHOT_SITE}/${OE_SNAPSHOT_NAME} && \
 	  bunzip2 OE.mtn.bz2 && \
 	  mtn --db=OE.mtn pull monotone.openembedded.org org.openembedded.dev )
 
@@ -71,12 +71,13 @@ setup-openembedded openembedded/_MTN/revision: OE.mtn
 		openembedded/packages/gcc/gcc-4.1.1/gcc-4.1.1-pr13685-1.patch
 	mkdir -p sources
 	[ -e build/tmp/stamps/armv4t-linux/js-1.5-r0.do_fetch ] || \
-	( cd sources ; wget http://ftp.mozilla.org/pub/mozilla.org/js/older-packages/js-1.5.tar.gz ; \
+	( wget -c -O sources/js-1.5.tar.gz \
+	  http://ftp.mozilla.org/pub/mozilla.org/js/older-packages/js-1.5.tar.gz ; \
 	  mkdir -p build/tmp/stamps/armv4t-linux ; \
 	  touch build/tmp/stamps/armv4t-linux/js-1.5-r0.do_fetch )
 	[ -e build/tmp/stamps/armv4t-linux/samba-3.0.14a-r15.do_fetch ] || \
-	( cd sources ; \
-	  wget http://us4.samba.org/samba/ftp/stable/samba-3.0.14a.tar.gz ; \
+	( wget -c -O sources/samba-3.0.14a.tar.gz \
+	  http://us4.samba.org/samba/ftp/stable/samba-3.0.14a.tar.gz ; \
 	  mkdir -p build/tmp/stamps/armv4t-linux ; \
 	  touch build/tmp/stamps/armv4t-linux/samba-3.0.14a-r15.do_fetch )
 	touch openembedded/_MTN/revision
