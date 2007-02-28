@@ -17,8 +17,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor,
 # Boston, MA  02110-1301, USA
 
-#OPENMOKO_SVN_REV = HEAD
-OPENMOKO_SVN_REV = 1146
+OPENMOKO_SVN_REV = HEAD
 OPENMOKO_MTN_REV = f499733e6db527846e1a48cf70f9862d6b3798ae
 
 MTN_VERSION := $(shell mtn --version | awk '{ print $$2; }')

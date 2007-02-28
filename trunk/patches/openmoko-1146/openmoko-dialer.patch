@@ -1,0 +1,13 @@
+---
+ trunk/oe/packages/openmoko-apps/openmoko-dialer_svn.bb |    1 +
+ 1 file changed, 1 insertion(+)
+
+Index: openmoko/trunk/oe/packages/openmoko-apps/openmoko-dialer_svn.bb
+===================================================================
+--- openmoko.orig/trunk/oe/packages/openmoko-apps/openmoko-dialer_svn.bb
++++ openmoko/trunk/oe/packages/openmoko-apps/openmoko-dialer_svn.bb
+@@ -6,3 +6,4 @@
+ 
+ inherit openmoko
+ 
++SRC_URI_append = ";rev=1146"
