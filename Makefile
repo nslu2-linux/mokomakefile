@@ -42,6 +42,13 @@ MM_SVN_PATH := /svnroot/mokomakefile
 .PHONY: all
 all: openmoko-devel-image
 
+.PHONY: force-rebuild
+force-rebuild:
+	perl -ne '/SRCDATE_([^ ]+)/ and print "$$1\n";' \
+		openmoko/trunk/oe/conf/distro/include/preferred-openmoko-versions.inc | \
+		xargs -i find build/tmp/{stamps,work}/* -name '{}-*' -prune -print | \
+		xargs /bin/rm -rf
+
 .PHONY: setup
 setup:  setup-bitbake setup-mtn setup-openembedded setup-openmoko \
 	setup-patches setup-config setup-env
