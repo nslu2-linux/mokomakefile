@@ -1,0 +1,16 @@
+---
+ trunk/oe/packages/openmoko-apps/openmoko-mainmenu_svn.bb |    4 ++++
+ 1 file changed, 4 insertions(+)
+
+Index: openmoko/trunk/oe/packages/openmoko-apps/openmoko-mainmenu_svn.bb
+===================================================================
+--- openmoko.orig/trunk/oe/packages/openmoko-apps/openmoko-mainmenu_svn.bb
++++ openmoko/trunk/oe/packages/openmoko-apps/openmoko-mainmenu_svn.bb
+@@ -5,3 +5,7 @@
+ inherit openmoko
+ 
+ DEPENDS += "libmatchbox"
++
++do_compile_prepend() {
++	sed -i -e 's:$(AM_LDFLAGS):$(AM_LDFLAGS)\ -lmb:' src/Makefile
++}
