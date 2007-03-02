@@ -54,9 +54,8 @@ setup:  setup-bitbake setup-mtn setup-openembedded setup-openmoko \
 	setup-patches setup-config setup-env
 
 .PHONY: update
-# %%% Add update-mtn to here when we move to OE head %%%
-update: update-bitbake update-openembedded update-patches \
-	update-openmoko
+# %%% Add update-mtn and update-openembedded to here when we move to OE head %%%
+update: update-bitbake update-patches update-openmoko
 
 .PHONY: setup-bitbake
 setup-bitbake bitbake/bin/bitbake:
