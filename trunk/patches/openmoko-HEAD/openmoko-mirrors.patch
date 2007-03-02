@@ -1,0 +1,27 @@
+---
+ trunk/oe/classes/openmoko-mirrors.bbclass |    4 ++++
+ trunk/oe/conf/distro/include/openmoko.inc |    2 +-
+ 2 files changed, 5 insertions(+), 1 deletion(-)
+
+Index: openmoko/trunk/oe/classes/openmoko-mirrors.bbclass
+===================================================================
+--- /dev/null
++++ openmoko/trunk/oe/classes/openmoko-mirrors.bbclass
+@@ -0,0 +1,4 @@
++MIRRORS_append () {
++ftp://.*/.*/	http://downloads.openmoko.org/sources/
++http://.*/.*/	http://downloads.openmoko.org/sources/
++}
+Index: openmoko/trunk/oe/conf/distro/include/openmoko.inc
+===================================================================
+--- openmoko.orig/trunk/oe/conf/distro/include/openmoko.inc
++++ openmoko/trunk/oe/conf/distro/include/openmoko.inc
+@@ -7,7 +7,7 @@
+ # Naming schemes
+ #
+ PARALLEL_INSTALL_MODULES = "1"
+-INHERIT += "debian multimachine"
++INHERIT += "debian multimachine openmoko-mirrors"
+ 
+ #
+ # Packaging and output format
