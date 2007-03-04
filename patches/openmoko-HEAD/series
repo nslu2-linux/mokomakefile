@@ -1,6 +1,5 @@
 site.patch
 preferred-openmoko-versions.patch
 openmoko-mainmenu.patch
-uboot-gta01.patch
 dfu-util-native.patch
 openmoko-mirrors.patch
