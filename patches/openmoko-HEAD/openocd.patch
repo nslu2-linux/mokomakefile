@@ -1,0 +1,42 @@
+---
+ trunk/oe/packages/openocd/openocd-native_svn.bb |    8 ++++++++
+ trunk/oe/packages/openocd/openocd_svn.bb        |    7 -------
+ 2 files changed, 8 insertions(+), 7 deletions(-)
+
+Index: openmoko/trunk/oe/packages/openocd/openocd-native_svn.bb
+===================================================================
+--- openmoko.orig/trunk/oe/packages/openocd/openocd-native_svn.bb
++++ openmoko/trunk/oe/packages/openocd/openocd-native_svn.bb
+@@ -1,5 +1,7 @@
+ require openocd_${PV}.bb
+ 
++FILESDIR = "${@os.path.dirname(bb.data.getVar('FILE',d,1))}/openocd"
++
+ inherit native
+ 
+ DEPENDS = "libftdi-native"
+@@ -9,3 +11,9 @@
+     install -m 0755 src/openocd ${STAGING_BINDIR}
+ }
+ 
++do_deploy() {
++	install -d ${DEPLOY_DIR_IMAGE}
++	install -m 0755 src/openocd ${DEPLOY_DIR_IMAGE}/openocd
++}
++
++addtask deploy before do_package after do_install
+Index: openmoko/trunk/oe/packages/openocd/openocd_svn.bb
+===================================================================
+--- openmoko.orig/trunk/oe/packages/openocd/openocd_svn.bb
++++ openmoko/trunk/oe/packages/openocd/openocd_svn.bb
+@@ -11,10 +11,3 @@
+ S = "${WORKDIR}/openocd/trunk"
+ 
+ EXTRA_OECONF = "  --disable-ftdi2232 --disable-ftd2xx"  
+-
+-do_deploy() {
+-	install -d ${DEPLOY_DIR_IMAGE}
+-	install -m 0755 src/openocd ${DEPLOY_DIR_IMAGE}/openocd
+-}
+-
+-addtask deploy before do_package after do_install
