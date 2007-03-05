@@ -1,5 +1,4 @@
 site.patch
 preferred-openmoko-versions.patch
 openmoko-mainmenu.patch
-dfu-util-native.patch
 openmoko-mirrors.patch
