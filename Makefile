@@ -17,8 +17,9 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor,
 # Boston, MA  02110-1301, USA
 
+# We're totally unfrozen now
 OPENMOKO_SVN_REV = HEAD
-OPENMOKO_MTN_REV = f499733e6db527846e1a48cf70f9862d6b3798ae
+# OPENMOKO_MTN_REV = e2dbb52fe39df7ef786b6068f6178f29508dfded
 
 MTN_VERSION := $(shell mtn --version | awk '{ print $$2; }')
 
@@ -40,7 +41,7 @@ MM_SVN_SITE := svn.nslu2-linux.org
 MM_SVN_PATH := /svnroot/mokomakefile
 
 .PHONY: all
-all: openmoko-devel-image
+all: openmoko-devel-image devirginator
 
 .PHONY: force-rebuild
 force-rebuild:
@@ -54,8 +55,7 @@ setup:  setup-bitbake setup-mtn setup-openembedded setup-openmoko \
 	setup-patches setup-config setup-env
 
 .PHONY: update
-# %%% Add update-mtn and update-openembedded to here when we move to OE head %%%
-update: update-bitbake update-patches update-openmoko
+update: update-bitbake update-mtn update-openembedded update-patches update-openmoko
 
 .PHONY: setup-bitbake
 setup-bitbake bitbake/bin/bitbake:
@@ -186,6 +186,16 @@ openmoko-devel-image: \
 		setup-env
 	( cd build ; . ../setup-env ; \
 	  bitbake openmoko-devel-image )
+
+.PHONY: devirginator
+devirginator: \
+		openmoko/trunk/oe/conf/site.conf \
+		bitbake/bin/bitbake \
+		openembedded/_MTN/revision \
+		build/conf/local.conf \
+		setup-env
+	( cd build ; . ../setup-env ; \
+	  bitbake dfu-util-native openocd-native )
 
 .PHONY: push-makefile
 push-makefile:
