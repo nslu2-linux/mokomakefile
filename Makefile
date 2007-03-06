@@ -65,7 +65,8 @@ setup-bitbake bitbake/bin/bitbake:
 .PHONY: setup-mtn
 setup-mtn OE.mtn:
 	[ -e OE.mtn ] || \
-	( wget -c -O OE.mtn.bz2 ${OE_SNAPSHOT_SITE}/${OE_SNAPSHOT_NAME} && \
+	( ( wget -c -O OE.mtn.bz2 ${OE_SNAPSHOT_SITE}/${OE_SNAPSHOT_NAME} || \
+	    wget -c -O OE.mtn.bz2 ${OE_SNAPSHOT_SITE}/OE.mtn.bz2 ) && \
 	  bunzip2 OE.mtn.bz2 && \
 	  mtn --db=OE.mtn pull monotone.openembedded.org org.openembedded.dev )
 
