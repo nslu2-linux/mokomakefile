@@ -202,6 +202,10 @@ devirginator: \
 push-makefile:
 	scp Makefile www.rwhitby.net:htdocs/files/openmoko/Makefile
 
+.PHONY: push-openembedded
+push-openembedded: update-openembedded
+	( cd openembedded ; mtn push monotone.openembedded.org org.openembedded.dev )
+
 .PHONY: clobber
 clobber:
 	rm -rf build/tmp
