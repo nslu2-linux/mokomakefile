@@ -2,5 +2,4 @@ site.patch
 preferred-openmoko-versions.patch
 openmoko-mainmenu.patch
 openmoko-mirrors.patch
-dfu-util-native.patch
 openocd.patch
