@@ -8,7 +8,7 @@ Index: openmoko/trunk/oe/conf/site.conf
 +++ openmoko/trunk/oe/conf/site.conf
 @@ -21,4 +21,4 @@
  SOURCEFORGE_MIRROR = "http://heanet.dl.sf.net"
- PARALLEL_MAKE = ""
+ #PARALLEL_MAKE = ""
  
 -SRCDATE = "20060814"
 +# SRCDATE = "20060814"
