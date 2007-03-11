@@ -11,7 +11,7 @@ Index: bitbake/lib/bb/fetch/__init__.py
      def compute_revisions(self, url, d):
          """Return the current (or date-restricted) revisions that pertain to a given url."""
 -        bb.error("compute_revisions() not supported by this fetcher: %s" % self.__class__)
-+        bb.info("compute_revisions() not supported by this fetcher: %s" % self.__class__)
++        # bb.error("compute_revisions() not supported by this fetcher: %s" % self.__class__)
          return ['0']
  
      def setUrls(self, urls):

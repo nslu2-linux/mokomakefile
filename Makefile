@@ -19,6 +19,7 @@
 
 # We're totally unfrozen now
 OPENMOKO_SVN_REV = HEAD
+BITBAKE_SVN_REV = HEAD
 # OPENMOKO_MTN_REV = e2dbb52fe39df7ef786b6068f6178f29508dfded
 
 MTN_VERSION := $(shell mtn --version | awk '{ print $$2; }')
@@ -41,7 +42,7 @@ MM_SVN_SITE := svn.nslu2-linux.org
 MM_SVN_PATH := /svnroot/mokomakefile
 
 .PHONY: all
-all: openmoko-devel-image devirginator
+all: openmoko-devel-image openmoko-devel-tools
 
 .PHONY: force-rebuild
 force-rebuild:
@@ -55,12 +56,12 @@ setup:  setup-bitbake setup-mtn setup-openembedded setup-openmoko \
 	setup-patches setup-config setup-env
 
 .PHONY: update
-update: update-bitbake update-mtn update-openembedded update-patches update-openmoko
+update: update-mtn update-openembedded update-patches update-bitbake update-openmoko
 
 .PHONY: setup-bitbake
 setup-bitbake bitbake/bin/bitbake:
 	[ -e bitbake ] || \
-	( svn co svn://svn.berlios.de/bitbake/branches/bitbake-1.6 bitbake )
+	( svn co -r ${BITBAKE_SVN_REV} svn://svn.berlios.de/bitbake/branches/bitbake-1.6 bitbake )
 
 .PHONY: setup-mtn
 setup-mtn OE.mtn:
@@ -83,20 +84,28 @@ setup-openmoko openmoko/trunk/oe/conf/site.conf:
 	[ -e openmoko ] || \
 	( svn co -r ${OPENMOKO_SVN_REV} http://svn.openmoko.org/ openmoko )
 	[ -e oe ] || \
-	( ln -s openmoko/trunk/oe . )
+	( ln -sfn openmoko/trunk/oe . )
 
 .PHONY: setup-patches
 setup-patches: openmoko/trunk/oe/conf/site.conf
+	[ -e patches ] || \
+	( svn co http://${MM_SVN_SITE}/${MM_SVN_PATH}/trunk/patches patches )
+	[ -e bitbake/patches ] && \
+	( cd bitbake ; quilt pop -a -f ) || true
+	( cd bitbake ; svn revert -R . )
 	[ -e openmoko/patches ] && \
 	( cd openmoko ; quilt pop -a -f ) || true
 	( cd openmoko ; svn revert -R . )
-	[ -e patches ] || \
-	( svn co http://${MM_SVN_SITE}/${MM_SVN_PATH}/trunk/patches patches )
+	[ ! -e patches/bitbake-${BITBAKE_SVN_REV} ] || \
+	( cd bitbake ; rm -f patches ; \
+	  ln -sfn ../patches/bitbake-${BITBAKE_SVN_REV} patches )
 	[ ! -e patches/openmoko-${OPENMOKO_SVN_REV} ] || \
 	( cd openmoko ; rm -f patches ; \
-	  ln -s ../patches/openmoko-${OPENMOKO_SVN_REV} patches )
+	  ln -sfn ../patches/openmoko-${OPENMOKO_SVN_REV} patches )
 	[ ! -e openmoko/patches/series ] || \
 	( cd openmoko ; quilt push -a )
+	[ ! -e bitbake/patches/series ] || \
+	( cd bitbake ; quilt push -a )
 
 .PHONY: setup-config
 setup-config build/conf/local.conf:
@@ -116,7 +125,7 @@ setup-env:
 	'export PYTHONPATH="$${OMDIR}/bitbake/libbitbake"' \
 		>> setup-env ; \
 	  echo \
-	'export PATH="$${OMDIR}/bitbake/bin:${PATH}"' \
+	'export PATH="$${OMDIR}/bitbake/bin:$${PATH}"' \
 		>> setup-env )
 
 .PHONY: update-makefile
@@ -133,7 +142,14 @@ check-makefile:
 
 .PHONY: update-bitbake
 update-bitbake: bitbake/bin/bitbake
-	( cd bitbake ; svn update )
+	( cd bitbake ; quilt pop -a -f ) || true
+	( cd bitbake ; svn revert -R . )
+	( cd bitbake ; svn update -r ${BITBAKE_SVN_REV} )
+	[ ! -e patches/bitbake-${BITBAKE_SVN_REV} ] || \
+	( cd bitbake ; rm -f patches ; \
+	  ln -sfn ../patches/bitbake-${BITBAKE_SVN_REV} patches )
+	[ ! -e bitbake/patches/series ] || \
+	( cd bitbake ; quilt push -a )
 
 .PHONY: update-mtn
 update-mtn: OE.mtn
@@ -162,7 +178,7 @@ update-openmoko: openmoko/trunk/oe/conf/site.conf
 	( cd openmoko ; svn update -r ${OPENMOKO_SVN_REV} )
 	[ ! -e patches/openmoko-${OPENMOKO_SVN_REV} ] || \
 	( cd openmoko ; rm -f patches ; \
-	  ln -s ../patches/openmoko-${OPENMOKO_SVN_REV} patches )
+	  ln -sfn ../patches/openmoko-${OPENMOKO_SVN_REV} patches )
 	[ ! -e openmoko/patches/series ] || \
 	( cd openmoko ; quilt push -a )
 
@@ -176,15 +192,15 @@ openmoko-devel-image: \
 	( cd build ; . ../setup-env ; \
 	  bitbake openmoko-devel-image )
 
-.PHONY: devirginator
-devirginator: \
+.PHONY: openmoko-host-tools
+openmoko-devel-tools: \
 		openmoko/trunk/oe/conf/site.conf \
 		bitbake/bin/bitbake \
 		openembedded/_MTN/revision \
 		build/conf/local.conf \
 		setup-env
 	( cd build ; . ../setup-env ; \
-	  bitbake dfu-util-native openocd-native )
+	  bitbake dfu-util-native ftdi-eeprom-native openocd-native )
 
 .PHONY: push-makefile
 push-makefile:
