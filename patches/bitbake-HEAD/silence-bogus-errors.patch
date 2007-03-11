@@ -1,0 +1,17 @@
+---
+ lib/bb/fetch/__init__.py |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+Index: bitbake/lib/bb/fetch/__init__.py
+===================================================================
+--- bitbake.orig/lib/bb/fetch/__init__.py
++++ bitbake/lib/bb/fetch/__init__.py
+@@ -152,7 +152,7 @@
+     
+     def compute_revisions(self, url, d):
+         """Return the current (or date-restricted) revisions that pertain to a given url."""
+-        bb.error("compute_revisions() not supported by this fetcher: %s" % self.__class__)
++        bb.info("compute_revisions() not supported by this fetcher: %s" % self.__class__)
+         return ['0']
+ 
+     def setUrls(self, urls):
