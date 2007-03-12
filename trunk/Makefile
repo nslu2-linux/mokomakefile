@@ -210,6 +210,14 @@ push-makefile:
 push-openembedded: update-openembedded
 	( cd openembedded ; mtn push monotone.openembedded.org org.openembedded.dev )
 
+.PHONY: build-package-%
+build-package-%:
+	( source ./setup-env ; cd build ; bitbake -c build $* )
+
+.PHONY: clean-package-%
+clean-package-%:
+	( source ./setup-env ; cd build ; bitbake -c clean $* )
+
 .PHONY: clobber
 clobber:
 	rm -rf build/tmp
