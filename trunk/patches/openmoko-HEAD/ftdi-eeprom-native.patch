@@ -1,0 +1,16 @@
+---
+ trunk/oe/packages/libftdi/ftdi-eeprom-native_0.2.bb |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+Index: openmoko/trunk/oe/packages/libftdi/ftdi-eeprom-native_0.2.bb
+===================================================================
+--- openmoko.orig/trunk/oe/packages/libftdi/ftdi-eeprom-native_0.2.bb
++++ openmoko/trunk/oe/packages/libftdi/ftdi-eeprom-native_0.2.bb
+@@ -1,6 +1,6 @@
+ require ftdi-eeprom_${PV}.bb
+ 
+-DEPENDS = "libftdi-native"
++DEPENDS = "libftdi-native confuse-native"
+ 
+ do_stage() {
+     install -m 0755 ftdi_eeprom/ftdi_eeprom ${STAGING_BINDIR_NATIVE}
