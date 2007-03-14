@@ -5,3 +5,4 @@ openmoko-mirrors.patch
 openocd.patch
 silence-retrieved-revisions.patch
 remove-obsolete-image-recipe.patch
+ftdi-eeprom-native.patch
