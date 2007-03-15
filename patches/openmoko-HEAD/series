@@ -2,6 +2,5 @@
 #preferred-openmoko-versions.patch
 openmoko-mainmenu.patch
 openmoko-mirrors.patch
-openocd.patch
 silence-retrieved-revisions.patch
 remove-obsolete-image-recipe.patch
