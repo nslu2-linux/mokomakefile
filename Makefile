@@ -200,7 +200,7 @@ openmoko-devel-tools: \
 		build/conf/local.conf \
 		setup-env
 	( cd build ; . ../setup-env ; \
-	  bitbake dfu-util-native ftdi-eeprom-native openocd-native )
+	  bitbake dfu-util-native openocd-native )
 
 .PHONY: push-makefile
 push-makefile:
