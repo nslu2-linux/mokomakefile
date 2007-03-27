@@ -76,7 +76,9 @@ setup-mtn OE.mtn:
 setup-openembedded openembedded/_MTN/revision: OE.mtn
 	[ -e openembedded/_MTN/revision ] || \
 	( mtn --db=OE.mtn checkout --branch=org.openembedded.dev \
-		${MTN_REV_FLAGS} openembedded )
+		${MTN_REV_FLAGS} openembedded ) || \
+	( mtn --db=OE.mtn checkout --branch=org.openembedded.dev \
+		-r `mtn --db=OE.mtn automate heads | head -n1` openembedded )
 	touch openembedded/_MTN/revision
 
 .PHONY: setup-openmoko
@@ -157,15 +159,9 @@ update-mtn: OE.mtn
 
 .PHONY: update-openembedded
 update-openembedded: update-mtn openembedded/_MTN/revision
-	if [ `mtn --db=OE.mtn automate heads org.openembedded.dev | wc -l` \
-		!= "1" ] ; then \
-	  mtn --db=OE.mtn merge -b org.openembedded.dev ; \
-	fi
-	( cd openembedded ; mtn update ${MTN_REV_FLAGS} )
-	if [ `mtn --db=OE.mtn automate heads org.openembedded.dev | wc -l` \
-		!= "1" ] ; then \
-	  mtn --db=OE.mtn merge -b org.openembedded.dev ; \
-	fi
+	( cd openembedded ; mtn update ${MTN_REV_FLAGS} ) || \
+	( cd openembedded ; mtn update \
+		-r `mtn automate heads | head -n1` )
 
 .PHONY: update-patches
 update-patches: 
@@ -207,7 +203,16 @@ push-makefile:
 	scp Makefile www.rwhitby.net:htdocs/files/openmoko/Makefile
 
 .PHONY: push-openembedded
-push-openembedded: update-openembedded
+push-openembedded: update-mtn openembedded/_MTN/revision
+	if [ `mtn --db=OE.mtn automate heads org.openembedded.dev | wc -l` \
+		!= "1" ] ; then \
+	  mtn --db=OE.mtn merge -b org.openembedded.dev ; \
+	fi
+	( cd openembedded ; mtn update )
+	if [ `mtn --db=OE.mtn automate heads org.openembedded.dev | wc -l` \
+		!= "1" ] ; then \
+	  mtn --db=OE.mtn merge -b org.openembedded.dev ; \
+	fi
 	( cd openembedded ; mtn push monotone.openembedded.org org.openembedded.dev )
 
 .PHONY: build-package-%
