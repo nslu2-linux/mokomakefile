@@ -5,3 +5,4 @@ openmoko-mirrors.patch
 silence-retrieved-revisions.patch
 remove-obsolete-image-recipe.patch
 gtk-provider.patch
+remove-oa-tree-reference.patch
