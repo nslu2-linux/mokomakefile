@@ -81,6 +81,13 @@ setup-openembedded openembedded/_MTN/revision: OE.mtn
 		-r `mtn --db=OE.mtn automate heads | head -n1` openembedded )
 	touch openembedded/_MTN/revision
 
+.PHONY: setup-openmoko-developer
+setup-openmoko-developer:
+	[ ! -e openmoko ] || ( mv openmoko openmoko-user )
+	( svn co -r ${OPENMOKO_SVN_REV} https://svn.openmoko.org/ openmoko )
+	[ -e oe ] || \
+	( ln -sfn openmoko/trunk/oe . )
+
 .PHONY: setup-openmoko
 setup-openmoko openmoko/trunk/oe/conf/site.conf:
 	[ -e openmoko ] || \
