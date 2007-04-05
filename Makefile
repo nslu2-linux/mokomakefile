@@ -218,10 +218,17 @@ qemu: \
 	[ -e build/qemu ] || \
 	( cd build ; mkdir -p qemu )
 	[ -e build/qemu/Makefile ] || \
-	( cd build/qemu ; \
-	  ../../openmoko/trunk/src/host/qemu-neo1973/configure \
+	( . ./setup-env ; cd build/qemu ; \
+	  $${OMDIR}/openmoko/trunk/src/host/qemu-neo1973/configure \
 		--target-list=arm-softmmu )
 	( cd build/qemu ; ${MAKE} )
+	[ -e build/qemu/openmoko ] || \
+	( . ./setup-env ; cd build/qemu ; mkdir openmoko ; \
+	  for f in $${OMDIR}/openmoko/trunk/src/host/qemu-neo1973/openmoko/* ; do \
+	    ln -s $$f openmoko/`basename $$f` ; \
+	  done )
+	( cd build/qemu ; openmoko/download.sh )
+	( cd build/qemu ; openmoko/flash.sh )
 
 .PHONY: push-makefile
 push-makefile:
