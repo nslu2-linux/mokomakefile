@@ -1,0 +1,17 @@
+---
+ trunk/src/host/qemu-neo1973/openmoko/env |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+Index: openmoko/trunk/src/host/qemu-neo1973/openmoko/env
+===================================================================
+--- openmoko.orig/trunk/src/host/qemu-neo1973/openmoko/env
++++ openmoko/trunk/src/host/qemu-neo1973/openmoko/env
+@@ -7,7 +7,7 @@
+ qemu_relative="arm-softmmu/qemu-system-arm -M neo -m 130"
+ qemu="$src_dir/$qemu_relative"
+ flash_image=openmoko-flash.image
+-make=gmake
++make=make
+ 
+ kernel_addr=0x32000000
+ splash_addr=0x36000000
