@@ -59,27 +59,32 @@ setup:  setup-bitbake setup-mtn setup-openembedded setup-openmoko \
 update: update-mtn update-openembedded update-patches update-bitbake update-openmoko
 
 .PHONY: setup-bitbake
-setup-bitbake bitbake/bin/bitbake:
-	[ -e bitbake ] || \
+setup-bitbake stamps/bitbake:
+	[ -e stamps/bitbake ] || \
 	( svn co -r ${BITBAKE_SVN_REV} svn://svn.berlios.de/bitbake/branches/bitbake-1.6 bitbake )
+	[ -d stamps ] || mkdir stamps
+	touch stamps/bitbake
 
 .PHONY: setup-mtn
-setup-mtn OE.mtn:
-	[ -e OE.mtn ] || \
+setup-mtn stamps/OE.mtn:
+	[ -e stamps/OE.mtn ] || \
 	( ( wget -c -O OE.mtn.bz2 ${OE_SNAPSHOT_SITE}/${OE_SNAPSHOT_NAME} || \
 	    wget -c -O OE.mtn.bz2 ${OE_SNAPSHOT_SITE}/OE.mtn.bz2 ) && \
 	  bunzip2 OE.mtn.bz2 && \
 	  mtn --db=OE.mtn db migrate && \
 	  mtn --db=OE.mtn pull monotone.openembedded.org org.openembedded.dev )
+	[ -d stamps ] || mkdir stamps
+	touch stamps/OE.mtn
 
 .PHONY: setup-openembedded
-setup-openembedded openembedded/_MTN/revision: OE.mtn
-	[ -e openembedded/_MTN/revision ] || \
+setup-openembedded stamps/openembedded: stamps/OE.mtn
+	[ -e stamps/openembedded ] || \
 	( mtn --db=OE.mtn checkout --branch=org.openembedded.dev \
 		${MTN_REV_FLAGS} openembedded ) || \
 	( mtn --db=OE.mtn checkout --branch=org.openembedded.dev \
 		-r `mtn --db=OE.mtn automate heads | head -n1` openembedded )
-	touch openembedded/_MTN/revision
+	[ -d stamps ] || mkdir stamps
+	touch stamps/openembedded
 
 .PHONY: setup-openmoko-developer
 setup-openmoko-developer:
@@ -87,17 +92,21 @@ setup-openmoko-developer:
 	( svn co -r ${OPENMOKO_SVN_REV} https://svn.openmoko.org/ openmoko )
 	[ -e oe ] || \
 	( ln -sfn openmoko/trunk/oe . )
+	[ -d stamps ] || mkdir stamps
+	touch stamps/openmoko
 
 .PHONY: setup-openmoko
-setup-openmoko openmoko/trunk/oe/conf/site.conf:
-	[ -e openmoko ] || \
+setup-openmoko stamps/openmoko:
+	[ -e stamps/openmoko ] || \
 	( svn co -r ${OPENMOKO_SVN_REV} http://svn.openmoko.org/ openmoko )
 	[ -e oe ] || \
 	( ln -sfn openmoko/trunk/oe . )
+	[ -d stamps ] || mkdir stamps
+	touch stamps/openmoko
 
 .PHONY: setup-patches
-setup-patches: openmoko/trunk/oe/conf/site.conf
-	[ -e patches ] || \
+setup-patches stamps/patches: stamps/openmoko
+	[ -e stamps/patches ] || \
 	( svn co http://${MM_SVN_SITE}/${MM_SVN_PATH}/trunk/patches patches )
 	[ -e bitbake/patches ] && \
 	( cd bitbake ; quilt pop -a -f ) || true
@@ -115,6 +124,8 @@ setup-patches: openmoko/trunk/oe/conf/site.conf
 	( cd openmoko ; quilt push -a )
 	[ ! -e bitbake/patches/series ] || \
 	( cd bitbake ; quilt push -a )
+	[ -d stamps ] || mkdir stamps
+	touch stamps/patches
 
 .PHONY: setup-config
 setup-config build/conf/local.conf:
@@ -150,7 +161,7 @@ check-makefile:
 	  diff -u Makefile - )
 
 .PHONY: update-bitbake
-update-bitbake: bitbake/bin/bitbake
+update-bitbake: stamps/bitbake
 	( cd bitbake ; quilt pop -a -f ) || true
 	( cd bitbake ; svn revert -R . )
 	( cd bitbake ; svn update -r ${BITBAKE_SVN_REV} )
@@ -161,21 +172,21 @@ update-bitbake: bitbake/bin/bitbake
 	( cd bitbake ; quilt push -a )
 
 .PHONY: update-mtn
-update-mtn: OE.mtn
+update-mtn: stamps/OE.mtn
 	mtn --db=OE.mtn pull monotone.openembedded.org org.openembedded.dev
 
 .PHONY: update-openembedded
-update-openembedded: update-mtn openembedded/_MTN/revision
+update-openembedded: update-mtn stamps/openembedded
 	( cd openembedded ; mtn update ${MTN_REV_FLAGS} ) || \
 	( cd openembedded ; mtn update \
 		-r `mtn automate heads | head -n1` )
 
 .PHONY: update-patches
-update-patches: 
+update-patches: stamps/patches
 	( cd patches ; svn update )
 
 .PHONY: update-openmoko
-update-openmoko: openmoko/trunk/oe/conf/site.conf
+update-openmoko: stamps/openmoko
 	( cd openmoko ; quilt pop -a -f ) || true
 	( cd openmoko ; svn revert -R . )
 	( cd openmoko ; svn update -r ${OPENMOKO_SVN_REV} )
@@ -187,21 +198,17 @@ update-openmoko: openmoko/trunk/oe/conf/site.conf
 
 .PHONY: openmoko-devel-image
 openmoko-devel-image: \
-		openmoko/trunk/oe/conf/site.conf \
-		bitbake/bin/bitbake \
-		openembedded/_MTN/revision \
-		build/conf/local.conf \
-		setup-env
+		stamps/openmoko stamps/bitbake \
+		stamps/openembedded stamps/patches \
+		build/conf/local.conf setup-env
 	( cd build ; . ../setup-env ; \
 	  bitbake openmoko-devel-image )
 
 .PHONY: openmoko-host-tools
 openmoko-devel-tools: \
-		openmoko/trunk/oe/conf/site.conf \
-		bitbake/bin/bitbake \
-		openembedded/_MTN/revision \
-		build/conf/local.conf \
-		setup-env
+		stamps/openmoko stamps/bitbake \
+		stamps/openembedded stamps/patches \
+		build/conf/local.conf setup-env
 	( cd build ; . ../setup-env ; \
 	  bitbake dfu-util-native openocd-native )
 
