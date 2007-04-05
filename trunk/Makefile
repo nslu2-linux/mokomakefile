@@ -212,6 +212,16 @@ openmoko-devel-tools: \
 	( cd build ; . ../setup-env ; \
 	  bitbake dfu-util-native openocd-native )
 
+.PHONY: qemu
+qemu: \
+		stamps/openmoko stamps/patches
+	[ -e build/qemu ] || \
+	( cd build ; mkdir -p qemu )
+	[ -e build/qemu/Makefile ] || \
+	( cd build/qemu ; \
+	  ../../openmoko/trunk/src/host/qemu-neo1973/configure --target-list=arm )
+	( cd build/qemu ; ${MAKE} )
+
 .PHONY: push-makefile
 push-makefile:
 	scp Makefile www.rwhitby.net:htdocs/files/openmoko/Makefile
