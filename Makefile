@@ -213,7 +213,10 @@ openmoko-devel-tools: \
 	  bitbake dfu-util-native openocd-native )
 
 .PHONY: qemu
-qemu: \
+qemu: setup-qemu build-qemu flash-qemu
+
+.PHONY: setup-qemu
+setup-qemu stamps/qemu: \
 		stamps/openmoko stamps/patches
 	[ -e build/qemu ] || \
 	( cd build ; mkdir -p qemu )
@@ -221,12 +224,20 @@ qemu: \
 	( . ./setup-env ; cd build/qemu ; \
 	  $${OMDIR}/openmoko/trunk/src/host/qemu-neo1973/configure \
 		--target-list=arm-softmmu )
-	( cd build/qemu ; ${MAKE} )
 	[ -e build/qemu/openmoko ] || \
 	( . ./setup-env ; cd build/qemu ; mkdir openmoko ; \
 	  for f in $${OMDIR}/openmoko/trunk/src/host/qemu-neo1973/openmoko/* ; do \
 	    ln -s $$f openmoko/`basename $$f` ; \
 	  done )
+	[ -d stamps ] || mkdir stamps
+	touch stamps/qemu
+
+.PHONY: build-qemu
+build-qemu build/qemu/arm-softmmu/qemu-system-arm: stamps/qemu
+	( cd build/qemu ; ${MAKE} )
+
+.PHONY: flash-qemu
+flash-qemu: stamps/qemu
 	( cd build/qemu ; openmoko/download.sh )
 	( cd build/qemu ; openmoko/flash.sh )
 
