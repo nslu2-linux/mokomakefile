@@ -67,7 +67,7 @@ setup-bitbake stamps/bitbake:
 
 .PHONY: setup-mtn
 setup-mtn stamps/OE.mtn:
-	[ -e OE.mtn ] || \
+	[ -e stamps/OE.mtn ] || [ -e OE.mtn ] || \
 	( ( wget -c -O OE.mtn.bz2 ${OE_SNAPSHOT_SITE}/${OE_SNAPSHOT_NAME} || \
 	    wget -c -O OE.mtn.bz2 ${OE_SNAPSHOT_SITE}/OE.mtn.bz2 ) && \
 	  bunzip2 OE.mtn.bz2 && \
@@ -78,7 +78,7 @@ setup-mtn stamps/OE.mtn:
 
 .PHONY: setup-openembedded
 setup-openembedded stamps/openembedded: stamps/OE.mtn
-	[ -e stamps/openembedded ] || \
+	[ -e stamps/openembedded ] || [ -e openembedded/_MTN/revision ] || \
 	( mtn --db=OE.mtn checkout --branch=org.openembedded.dev \
 		${MTN_REV_FLAGS} openembedded ) || \
 	( mtn --db=OE.mtn checkout --branch=org.openembedded.dev \
