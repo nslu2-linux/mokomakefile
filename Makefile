@@ -219,7 +219,8 @@ qemu: \
 	( cd build ; mkdir -p qemu )
 	[ -e build/qemu/Makefile ] || \
 	( cd build/qemu ; \
-	  ../../openmoko/trunk/src/host/qemu-neo1973/configure --target-list=arm )
+	  ../../openmoko/trunk/src/host/qemu-neo1973/configure \
+		--target-list=arm-softmmu )
 	( cd build/qemu ; ${MAKE} )
 
 .PHONY: push-makefile
@@ -248,5 +249,12 @@ clean-package-%:
 	( source ./setup-env ; cd build ; bitbake -c clean $* )
 
 .PHONY: clobber
-clobber:
+clobber: clobber-openembedded clobber-qemy
+
+.PHONY: clobber-openembedded
+clobber-openembedded:
 	rm -rf build/tmp
+
+.PHONY: clobber-qemu
+clobber-qemu:
+	rm -rf build/qemu
