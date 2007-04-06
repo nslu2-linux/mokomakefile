@@ -82,7 +82,7 @@ setup-openembedded stamps/openembedded: stamps/OE.mtn
 	( mtn --db=OE.mtn checkout --branch=org.openembedded.dev \
 		${MTN_REV_FLAGS} openembedded ) || \
 	( mtn --db=OE.mtn checkout --branch=org.openembedded.dev \
-		-r `mtn --db=OE.mtn automate heads | head -n1` openembedded )
+		-r `mtn --db=OE.mtn automate heads org.openembedded.dev | head -n1` openembedded )
 	[ -d stamps ] || mkdir stamps
 	touch stamps/openembedded
 
