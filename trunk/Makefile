@@ -197,12 +197,14 @@ update-openmoko: stamps/openmoko
 	( cd openmoko ; quilt push -a )
 
 .PHONY: openmoko-devel-image
-openmoko-devel-image: \
+openmoko-devel-image stamps/openmoko-devel-image: \
 		stamps/openmoko stamps/bitbake \
 		stamps/openembedded stamps/patches \
 		build/conf/local.conf setup-env
 	( cd build ; . ../setup-env ; \
 	  bitbake openmoko-devel-image )
+	[ -d stamps ] || mkdir stamps
+	touch stamps/openmoko-devel-image
 
 .PHONY: openmoko-host-tools
 openmoko-devel-tools: \
@@ -213,7 +215,7 @@ openmoko-devel-tools: \
 	  bitbake dfu-util-native openocd-native )
 
 .PHONY: qemu
-qemu: setup-qemu build-qemu flash-qemu
+qemu: setup-qemu build-qemu download-images flash-qemu-official run-qemu
 
 .PHONY: setup-qemu
 setup-qemu stamps/qemu: \
@@ -236,10 +238,36 @@ setup-qemu stamps/qemu: \
 build-qemu build/qemu/arm-softmmu/qemu-system-arm: stamps/qemu
 	( cd build/qemu ; ${MAKE} )
 
-.PHONY: flash-qemu
-flash-qemu: stamps/qemu
-	( cd build/qemu ; openmoko/download.sh )
-	( cd build/qemu ; openmoko/flash.sh )
+.PHONY: download-images
+download-images stamps/images: stamps/openmoko
+	[ -e images/openmoko ] || mkdir -p images/openmoko
+	ln -sf `pwd`/openmoko/trunk/src/host/qemu-neo1973/openmoko/env images/openmoko/env
+	( cd images ; ../openmoko/trunk/src/host/qemu-neo1973/openmoko/download.sh )
+	rm -f images/openmoko/env
+	[ -d stamps ] || mkdir stamps
+	touch stamps/images
+
+.PHONY: flash-qemu-official
+flash-qemu-official: stamps/qemu stamps/images
+	( cd build/qemu ; openmoko/flash.sh ../../images/openmoko )
+
+.PHONY: flash-qemu-local
+flash-qemu-local: stamps/qemu stamps/openmoko-devel-image
+	( cd build/qemu ; openmoko/flash.sh ../tmp/deploy/images )
+
+.PHONY: run-qemu
+run-qemu: stamps/qemu 
+	( cd build/qemu ; arm-softmmu/qemu-system-arm \
+		-M neo -m 130 -usb -show-cursor \
+		-mtdblock openmoko/openmoko-flash.image \
+		-kernel openmoko/openmoko-kernel.bin )
+
+.PHONY: run-qemu-snapshot
+run-qemu-snapshot: stamps/qemu 
+	( cd build/qemu ; arm-softmmu/qemu-system-arm \
+		-M neo -m 130 -usb -show-cursor -snapshot \
+		-mtdblock openmoko/openmoko-flash.image \
+		-kernel openmoko/openmoko-kernel.bin )
 
 .PHONY: push-makefile
 push-makefile:
@@ -267,12 +295,12 @@ clean-package-%:
 	( source ./setup-env ; cd build ; bitbake -c clean $* )
 
 .PHONY: clobber
-clobber: clobber-openembedded clobber-qemy
+clobber: clobber-openembedded clobber-qemu
 
 .PHONY: clobber-openembedded
 clobber-openembedded:
-	rm -rf build/tmp
+	rm -rf build/tmp stamps/openmoko-devel-image
 
 .PHONY: clobber-qemu
 clobber-qemu:
-	rm -rf build/qemu
+	rm -rf build/qemu stamps/qemu
