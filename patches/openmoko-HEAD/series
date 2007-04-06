@@ -1,1 +1,2 @@
 qemu-fix-missing-ioctl-definition.patch
+qemu-flash-alternate-location-fixes.patch

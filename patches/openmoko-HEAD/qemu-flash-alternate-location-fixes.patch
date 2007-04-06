@@ -1,0 +1,54 @@
+---
+ trunk/src/host/qemu-neo1973/openmoko/flash.sh |   18 ++++++++++++++----
+ 1 file changed, 14 insertions(+), 4 deletions(-)
+
+Index: openmoko/trunk/src/host/qemu-neo1973/openmoko/flash.sh
+===================================================================
+--- openmoko.orig/trunk/src/host/qemu-neo1973/openmoko/flash.sh
++++ openmoko/trunk/src/host/qemu-neo1973/openmoko/flash.sh
+@@ -29,6 +29,9 @@
+ 	img_dir="$script_dir"
+ fi
+ 
++# Ensure $img_dir is an absolute path.
++img_dir="`( cd $img_dir ; pwd )`"
++
+ cd $script_dir
+ 
+ if ! which pngtopnm || ! which ppmtorgb3; then
+@@ -42,10 +45,8 @@
+ # Find the most recent OpenMoko images in the current directory.
+ # We assume they have numeric date or some build number in their names.
+ most_recent () {
+-	cd $src_dir
+-	export $2="`basename \`ls -d -1 $img_dir/$1 | sort | tail -n 1\``"
+-	cd $script_dir
+-	export $3="`python -c \"print hex(\`stat -c %s ${!2}\`)\"`"
++	export $2="`(cd $src_dir ; basename \`ls -d -1 $img_dir/$1 | sort | tail -n 1\`)`"
++	export $3="`(cd $img_dir ; python -c \"print hex(\`stat -c %s ${!2}\`)\")`"
+ 	[ -n "${!3}" ]
+ }
+ 
+@@ -53,6 +54,11 @@
+ most_recent "$rootfs_wildcard" rootfs_image rootfs_size || exit -1
+ most_recent "$uboot_wildcard" uboot_image uboot_size || exit -1
+ 
++# If the images are from another directory, then symlink them here.
++[ -e $kernel_image ] || ln -sf $img_dir/$kernel_image $kernel_image
++[ -e $rootfs_image ] || ln -sf $img_dir/$rootfs_image $rootfs_image
++[ -e $uboot_image  ] || ln -sf $img_dir/$uboot_image  $uboot_image
++
+ echo Using \'$kernel_image\' as the kernel image.
+ echo Using \'$rootfs_image\' as the root filesystem image.
+ echo Using \'$uboot_image\' as bootloader.
+@@ -63,6 +69,10 @@
+ rm -rf $uboot_symlink
+ ln -s $script_dir_relative/$uboot_image $uboot_symlink
+ 
++# Make the kernel image accessible under openmoko-kernel.bin
++rm -rf openmoko-kernel.bin
++ln -s $kernel_image openmoko-kernel.bin
++
+ rm -rf $flash_image
+ ${make} $flash_image || exit -1
+ 
