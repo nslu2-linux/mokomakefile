@@ -20,7 +20,7 @@
 # We're totally unfrozen now
 OPENMOKO_SVN_REV = HEAD
 BITBAKE_SVN_REV = HEAD
-# OPENMOKO_MTN_REV = e2dbb52fe39df7ef786b6068f6178f29508dfded
+OPENMOKO_MTN_REV = e2dbb52fe39df7ef786b6068f6178f29508dfded
 
 MTN_VERSION := $(shell mtn --version | awk '{ print $$2; }')
 
@@ -177,6 +177,14 @@ update-mtn: stamps/OE.mtn
 
 .PHONY: update-openembedded
 update-openembedded: update-mtn stamps/openembedded
+	@if [ -n "${OPENMOKO_MTN_REV}" -a \
+	     "${OPENMOKO_MTN_REV}" != "`(cd openembedded ; mtn automate get_base_revision_id)`" ] ; then \
+	  echo "OpenMoko is now using a frozen OE version which doesn't match your OE checkout." ; \
+	  echo "You will need to run \"make clobber-openembedded setup-openembedded\" to fix this." ; \
+	  echo "Unfortunately, this will force a complete rebuild of *everything* (it's unavoidable)." ; \
+	  echo "Alternatively, comment out the OPENMOKO_MTN_REV definition to use unofficial OE head." ; \
+	  false ; \
+	fi
 	( cd openembedded ; mtn update ${MTN_REV_FLAGS} ) || \
 	( cd openembedded ; mtn update \
 		-r `mtn automate heads | head -n1` )
@@ -299,7 +307,7 @@ clobber: clobber-openembedded clobber-qemu
 
 .PHONY: clobber-openembedded
 clobber-openembedded:
-	rm -rf build/tmp stamps/openmoko-devel-image
+	rm -rf build/tmp openembedded stamps/openembedded stamps/openmoko-devel-image
 
 .PHONY: clobber-qemu
 clobber-qemu:
