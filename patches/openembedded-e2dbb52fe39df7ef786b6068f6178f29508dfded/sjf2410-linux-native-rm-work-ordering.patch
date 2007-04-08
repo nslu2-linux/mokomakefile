@@ -1,0 +1,14 @@
+---
+ packages/s3c2410-utils/sjf2410-linux-native_20060807.bb |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+Index: openembedded/packages/s3c2410-utils/sjf2410-linux-native_20060807.bb
+===================================================================
+--- openembedded.orig/packages/s3c2410-utils/sjf2410-linux-native_20060807.bb
++++ openembedded/packages/s3c2410-utils/sjf2410-linux-native_20060807.bb
+@@ -29,4 +29,4 @@
+ 	:
+ }
+ 
+-addtask deploy before do_build after do_compile
++addtask deploy before do_package after do_install
