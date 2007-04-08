@@ -158,10 +158,8 @@ setup-env:
 
 .PHONY: update-makefile
 update-makefile:
-	( rm -rf Makefile.old ; \
-	  mv Makefile Makefile.old ; \
-	  wget http://www.rwhitby.net/files/openmoko/Makefile && \
-	  rm -f Makefile.old )
+	( wget -O Makefile.new http://www.rwhitby.net/files/openmoko/Makefile && \
+	  mv Makefile.new Makefile )
 
 .PHONY: check-makefile
 check-makefile:
