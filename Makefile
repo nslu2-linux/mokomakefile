@@ -114,16 +114,24 @@ setup-patches stamps/patches: stamps/openmoko
 	[ -e openmoko/patches ] && \
 	( cd openmoko ; quilt pop -a -f ) || true
 	( cd openmoko ; svn revert -R . )
+	[ -e openembedded/patches ] && \
+	( cd openembedded ; quilt pop -a -f ) || true
+	( cd openembedded ; mtn revert . )
 	[ ! -e patches/bitbake-${BITBAKE_SVN_REV} ] || \
 	( cd bitbake ; rm -f patches ; \
 	  ln -sfn ../patches/bitbake-${BITBAKE_SVN_REV} patches )
 	[ ! -e patches/openmoko-${OPENMOKO_SVN_REV} ] || \
 	( cd openmoko ; rm -f patches ; \
 	  ln -sfn ../patches/openmoko-${OPENMOKO_SVN_REV} patches )
+	[ ! -e patches/openembedded-${OPENMOKO_MTN_REV} ] || \
+	( cd openembedded ; rm -f patches ; \
+	  ln -sfn ../patches/openembedded-${OPENMOKO_MTN_REV} patches )
 	[ ! -e openmoko/patches/series ] || \
 	( cd openmoko ; quilt push -a )
 	[ ! -e bitbake/patches/series ] || \
 	( cd bitbake ; quilt push -a )
+	[ ! -e openembedded/patches/series ] || \
+	( cd openembedded ; quilt push -a )
 	[ -d stamps ] || mkdir stamps
 	touch stamps/patches
 
@@ -173,10 +181,14 @@ update-bitbake: stamps/bitbake
 
 .PHONY: update-mtn
 update-mtn: stamps/OE.mtn
-	mtn --db=OE.mtn pull monotone.openembedded.org org.openembedded.dev
+	if [ "${OPENMOKO_MTN_REV}" != "`(cd openembedded ; mtn automate get_base_revision_id)`" ] ; then \
+		mtn --db=OE.mtn pull monotone.openembedded.org org.openembedded.dev ; \
+	fi
 
 .PHONY: update-openembedded
 update-openembedded: update-mtn stamps/openembedded
+	( cd openembedded ; quilt pop -a -f ) || true
+	( cd openembedded ; mtn revert . )
 	@if [ -n "${OPENMOKO_MTN_REV}" -a \
 	     "${OPENMOKO_MTN_REV}" != "`(cd openembedded ; mtn automate get_base_revision_id)`" ] ; then \
 	  echo "OpenMoko is now using a frozen OE version which doesn't match your OE checkout." ; \
@@ -188,6 +200,11 @@ update-openembedded: update-mtn stamps/openembedded
 	( cd openembedded ; mtn update ${MTN_REV_FLAGS} ) || \
 	( cd openembedded ; mtn update \
 		-r `mtn automate heads | head -n1` )
+	[ ! -e patches/openembedded-${OPENMOKO_MTN_REV} ] || \
+	( cd openembedded ; rm -f patches ; \
+	  ln -sfn ../patches/openembedded-${OPENMOKO_MTN_REV} patches )
+	[ ! -e openembedded/patches/series ] || \
+	( cd openembedded ; quilt push -a )
 
 .PHONY: update-patches
 update-patches: stamps/patches
