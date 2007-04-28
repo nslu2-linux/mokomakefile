@@ -143,6 +143,17 @@ setup-config build/conf/local.conf:
 	  echo 'DISTRO = "openmoko"' >> build/conf/local.conf ; \
 	  echo 'BUILD_ARCH = "'`uname -m`'"' >> build/conf/local.conf )
 
+.PHONY: setup-machine-neo
+setup-machine-neo: setup-machine-fic-gta01
+
+.PHONY: setup-machine-pc
+setup-machine-pc: setup-machine-x86
+
+.PHONY: setup-machine-%
+setup-machine-%: setup-config
+	sed -i -e 's/^MACHINE[[:space:]]*=[[:space:]]*\".*\"/MACHINE = \"$*\"/' \
+		build/conf/local.conf
+
 setup-env:
 	[ -e setup-env ] || \
 	( echo 'export OMDIR="'`pwd`'"' > setup-env ; \
