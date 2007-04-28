@@ -42,7 +42,7 @@ MM_SVN_SITE := svn.nslu2-linux.org
 MM_SVN_PATH := /svnroot/mokomakefile
 
 .PHONY: all
-all: openmoko-devel-image openmoko-devel-tools
+all: openmoko-devel-image openmoko-devel-tools build-qemu
 
 .PHONY: force-rebuild
 force-rebuild:
