@@ -1,0 +1,12 @@
+# 
+# 
+# patch "site/common"
+#  from [da39a3ee5e6b4b0d3255bfef95601890afd80709]
+#    to [6eae0417ff3edc787217f2ff632bbb0ab574d681]
+# 
+============================================================
+--- openembedded.orig/site/common	da39a3ee5e6b4b0d3255bfef95601890afd80709
++++ openembedded/site/common	6eae0417ff3edc787217f2ff632bbb0ab574d681
+@@ -0,0 +1,2 @@
++# libelf
++mr_cv_target_elf=${mr_cv_target_elf=yes}
