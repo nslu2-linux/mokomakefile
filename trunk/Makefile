@@ -105,7 +105,7 @@ setup-openmoko stamps/openmoko:
 	touch stamps/openmoko
 
 .PHONY: setup-patches
-setup-patches stamps/patches: stamps/openmoko
+setup-patches stamps/patches: stamps/bitbake stamps/openembedded stamps/openmoko
 	[ -e stamps/patches ] || \
 	( svn co http://${MM_SVN_SITE}/${MM_SVN_PATH}/trunk/patches patches )
 	[ -e bitbake/patches ] && \
