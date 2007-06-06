@@ -307,6 +307,14 @@ run-qemu-snapshot: stamps/qemu
 		-mtdblock openmoko/openmoko-flash.image \
 		-kernel openmoko/openmoko-kernel.bin )
 
+.PHONY: run-qemu-vnc
+run-qemu-vnc: stamps/qemu 
+	( cd build/qemu ; arm-softmmu/qemu-system-arm \
+		-M neo -m 130 -usb -show-cursor \
+		-vnc localhost:1 -monitor stdio \
+		-mtdblock openmoko/openmoko-flash.image \
+		-kernel openmoko/openmoko-kernel.bin )
+
 .PHONY: push-makefile
 push-makefile:
 	scp Makefile www.rwhitby.net:htdocs/files/openmoko/Makefile
