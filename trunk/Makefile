@@ -65,16 +65,19 @@ setup-bitbake stamps/bitbake:
 	[ -d stamps ] || mkdir stamps
 	touch stamps/bitbake
 
-.PHONY: setup-mtn
-setup-mtn stamps/OE.mtn:
-	[ -e stamps/OE.mtn ] || \
+OE.mtn:
+	[ -e OE.mtn ] || \
 	( ( wget -c -O OE.mtn.bz2 ${OE_SNAPSHOT_SITE}/${OE_SNAPSHOT_NAME} || \
 	    wget -c -O OE.mtn.bz2 ${OE_SNAPSHOT_SITE}/OE.mtn.bz2 ) && \
-	  bunzip2 -k -f OE.mtn.bz2 && \
-	  mtn --db=OE.mtn db migrate && \
+	  bunzip2 -c OE.mtn.bz2 > OE.mtn.partial && \
+	  mv OE.mtn.partial OE.mtn )
+
+.PHONY: setup-mtn
+setup-mtn stamps/OE.mtn: OE.mtn
+	[ -e stamps/OE.mtn ] || \
+	( mtn --db=OE.mtn db migrate && \
 	  mtn --db=OE.mtn pull monotone.openembedded.org org.openembedded.dev )
 	[ -d stamps ] || mkdir stamps
-	rm -f OE.mtn.bz2
 	touch stamps/OE.mtn
 
 .PHONY: setup-openembedded
