@@ -70,10 +70,11 @@ setup-mtn stamps/OE.mtn:
 	[ -e stamps/OE.mtn ] || \
 	( ( wget -c -O OE.mtn.bz2 ${OE_SNAPSHOT_SITE}/${OE_SNAPSHOT_NAME} || \
 	    wget -c -O OE.mtn.bz2 ${OE_SNAPSHOT_SITE}/OE.mtn.bz2 ) && \
-	  bunzip2 OE.mtn.bz2 && \
+	  bunzip2 -k -f OE.mtn.bz2 && \
 	  mtn --db=OE.mtn db migrate && \
 	  mtn --db=OE.mtn pull monotone.openembedded.org org.openembedded.dev )
 	[ -d stamps ] || mkdir stamps
+	rm -f OE.mtn.bz2
 	touch stamps/OE.mtn
 
 .PHONY: setup-openembedded
