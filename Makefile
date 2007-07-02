@@ -56,7 +56,7 @@ setup:  setup-bitbake setup-mtn setup-openembedded setup-openmoko \
 	setup-patches setup-config setup-env
 
 .PHONY: update
-update: update-mtn update-openembedded update-patches update-bitbake update-openmoko
+update: update-mtn update-patches update-openembedded update-bitbake update-openmoko
 
 .PHONY: setup-bitbake
 setup-bitbake stamps/bitbake:
