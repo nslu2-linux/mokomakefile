@@ -334,11 +334,11 @@ push-openembedded: update-mtn openembedded/_MTN/revision
 
 .PHONY: build-package-%
 build-package-%:
-	( source ./setup-env ; cd build ; bitbake -c build $* )
+	( . ./setup-env ; cd build ; bitbake -c build $* )
 
 .PHONY: clean-package-%
 clean-package-%:
-	( source ./setup-env ; cd build ; bitbake -c clean $* )
+	( . ./setup-env ; cd build ; bitbake -c clean $* )
 
 .PHONY: clobber
 clobber: clobber-openembedded clobber-qemu
