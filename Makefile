@@ -113,29 +113,29 @@ setup-patches stamps/patches: stamps/bitbake stamps/openembedded stamps/openmoko
 	[ -e stamps/patches ] || \
 	( svn co http://${MM_SVN_SITE}/${MM_SVN_PATH}/trunk/patches patches )
 	[ -e bitbake/patches ] && \
-	( cd bitbake ; quilt pop -a -f ) || true
-	( cd bitbake ; svn revert -R . )
+	( cd bitbake && quilt pop -a -f ) || true
+	( cd bitbake && svn revert -R . )
 	[ -e openmoko/patches ] && \
-	( cd openmoko ; quilt pop -a -f ) || true
-	( cd openmoko ; svn revert -R . )
+	( cd openmoko && quilt pop -a -f ) || true
+	( cd openmoko && svn revert -R . )
 	[ -e openembedded/patches ] && \
-	( cd openembedded ; quilt pop -a -f ) || true
-	( cd openembedded ; mtn revert . )
+	( cd openembedded && quilt pop -a -f ) || true
+	( cd openembedded && mtn revert . )
 	[ ! -e patches/bitbake-${BITBAKE_SVN_REV} ] || \
-	( cd bitbake ; rm -f patches ; \
+	( cd bitbake && rm -f patches && \
 	  ln -sfn ../patches/bitbake-${BITBAKE_SVN_REV} patches )
 	[ ! -e patches/openmoko-${OPENMOKO_SVN_REV} ] || \
-	( cd openmoko ; rm -f patches ; \
+	( cd openmoko && rm -f patches && \
 	  ln -sfn ../patches/openmoko-${OPENMOKO_SVN_REV} patches )
 	[ ! -e patches/openembedded-${OPENMOKO_MTN_REV} ] || \
-	( cd openembedded ; rm -f patches ; \
+	( cd openembedded && rm -f patches && \
 	  ln -sfn ../patches/openembedded-${OPENMOKO_MTN_REV} patches )
 	[ ! -e openmoko/patches/series ] || \
-	( cd openmoko ; quilt push -a )
+	( cd openmoko && quilt push -a )
 	[ ! -e bitbake/patches/series ] || \
-	( cd bitbake ; quilt push -a )
+	( cd bitbake && quilt push -a )
 	[ ! -e openembedded/patches/series ] || \
-	( cd openembedded ; quilt push -a )
+	( cd openembedded && quilt push -a )
 	[ -d stamps ] || mkdir stamps
 	touch stamps/patches
 
@@ -160,13 +160,13 @@ setup-machine-%: setup-config
 
 setup-env:
 	[ -e setup-env ] || \
-	( echo 'export OMDIR="'`pwd`'"' > setup-env ; \
+	( echo 'export OMDIR="'`pwd`'"' > setup-env && \
 	  echo \
 	'export BBPATH="$${OMDIR}/build:$${OMDIR}/oe:$${OMDIR}/openembedded"' \
-		>> setup-env ; \
+		>> setup-env && \
 	  echo \
 	'export PYTHONPATH="$${OMDIR}/bitbake/libbitbake"' \
-		>> setup-env ; \
+		>> setup-env && \
 	  echo \
 	'export PATH="$${OMDIR}/bitbake/bin:$${PATH}"' \
 		>> setup-env )
@@ -183,25 +183,25 @@ check-makefile:
 
 .PHONY: update-bitbake
 update-bitbake: stamps/bitbake
-	( cd bitbake ; quilt pop -a -f ) || true
-	( cd bitbake ; svn revert -R . )
-	( cd bitbake ; svn update -r ${BITBAKE_SVN_REV} )
+	( cd bitbake && quilt pop -a -f ) || true
+	( cd bitbake && svn revert -R . )
+	( cd bitbake && svn update -r ${BITBAKE_SVN_REV} )
 	[ ! -e patches/bitbake-${BITBAKE_SVN_REV} ] || \
-	( cd bitbake ; rm -f patches ; \
+	( cd bitbake && rm -f patches && \
 	  ln -sfn ../patches/bitbake-${BITBAKE_SVN_REV} patches )
 	[ ! -e bitbake/patches/series ] || \
-	( cd bitbake ; quilt push -a )
+	( cd bitbake && quilt push -a )
 
 .PHONY: update-mtn
 update-mtn: stamps/OE.mtn
-	if [ "${OPENMOKO_MTN_REV}" != "`(cd openembedded ; mtn automate get_base_revision_id)`" ] ; then \
+	if [ "${OPENMOKO_MTN_REV}" != "`(cd openembedded && mtn automate get_base_revision_id)`" ] ; then \
 		mtn --db=OE.mtn pull monotone.openembedded.org org.openembedded.dev ; \
 	fi
 
 .PHONY: update-openembedded
 update-openembedded: update-mtn stamps/openembedded
-	( cd openembedded ; quilt pop -a -f ) || true
-	( cd openembedded ; mtn revert . )
+	( cd openembedded && quilt pop -a -f ) || true
+	( cd openembedded && mtn revert . )
 	@if [ -n "${OPENMOKO_MTN_REV}" -a \
 	     "${OPENMOKO_MTN_REV}" != "`(cd openembedded ; mtn automate get_base_revision_id)`" ] ; then \
 	  echo "OpenMoko is now using a frozen OE version which doesn't match your OE checkout." ; \
@@ -210,36 +210,36 @@ update-openembedded: update-mtn stamps/openembedded
 	  echo "Alternatively, comment out the OPENMOKO_MTN_REV definition to use unofficial OE head." ; \
 	  false ; \
 	fi
-	( cd openembedded ; mtn update ${MTN_REV_FLAGS} ) || \
-	( cd openembedded ; mtn update \
+	( cd openembedded && mtn update ${MTN_REV_FLAGS} ) || \
+	( cd openembedded && mtn update \
 		-r `mtn automate heads | head -n1` )
 	[ ! -e patches/openembedded-${OPENMOKO_MTN_REV} ] || \
-	( cd openembedded ; rm -f patches ; \
+	( cd openembedded && rm -f patches && \
 	  ln -sfn ../patches/openembedded-${OPENMOKO_MTN_REV} patches )
 	[ ! -e openembedded/patches/series ] || \
-	( cd openembedded ; quilt push -a )
+	( cd openembedded && quilt push -a )
 
 .PHONY: update-patches
 update-patches: stamps/patches
-	( cd patches ; svn update )
+	( cd patches && svn update )
 
 .PHONY: update-openmoko
 update-openmoko: stamps/openmoko
-	( cd openmoko ; quilt pop -a -f ) || true
-	( cd openmoko ; svn revert -R . )
-	( cd openmoko ; svn update -r ${OPENMOKO_SVN_REV} )
+	( cd openmoko && quilt pop -a -f ) || true
+	( cd openmoko && svn revert -R . )
+	( cd openmoko && svn update -r ${OPENMOKO_SVN_REV} )
 	[ ! -e patches/openmoko-${OPENMOKO_SVN_REV} ] || \
-	( cd openmoko ; rm -f patches ; \
+	( cd openmoko && rm -f patches && \
 	  ln -sfn ../patches/openmoko-${OPENMOKO_SVN_REV} patches )
 	[ ! -e openmoko/patches/series ] || \
-	( cd openmoko ; quilt push -a )
+	( cd openmoko && quilt push -a )
 
 .PHONY: openmoko-devel-image
 openmoko-devel-image stamps/openmoko-devel-image: \
 		stamps/openmoko stamps/bitbake \
 		stamps/openembedded stamps/patches \
 		build/conf/local.conf setup-env
-	( cd build ; . ../setup-env ; \
+	( cd build && . ../setup-env && \
 	  bitbake openmoko-devel-image )
 	[ -d stamps ] || mkdir stamps
 	touch stamps/openmoko-devel-image
@@ -249,7 +249,7 @@ openmoko-devel-tools: \
 		stamps/openmoko stamps/bitbake \
 		stamps/openembedded stamps/patches \
 		build/conf/local.conf setup-env
-	( cd build ; . ../setup-env ; \
+	( cd build && . ../setup-env && \
 	  bitbake dfu-util-native openocd-native )
 
 .PHONY: qemu
@@ -259,13 +259,13 @@ qemu: setup-qemu build-qemu download-images flash-qemu-official run-qemu
 setup-qemu stamps/qemu: \
 		stamps/openmoko stamps/patches
 	[ -e build/qemu ] || \
-	( cd build ; mkdir -p qemu )
+	( cd build && mkdir -p qemu )
 	[ -e build/qemu/Makefile ] || \
-	( . ./setup-env ; cd build/qemu ; \
+	( . ./setup-env && cd build/qemu && \
 	  $${OMDIR}/openmoko/trunk/src/host/qemu-neo1973/configure \
 		--target-list=arm-softmmu )
 	[ -e build/qemu/openmoko ] || \
-	( . ./setup-env ; cd build/qemu ; mkdir openmoko ; \
+	( . ./setup-env && cd build/qemu && mkdir openmoko && \
 	  for f in $${OMDIR}/openmoko/trunk/src/host/qemu-neo1973/openmoko/* ; do \
 	    ln -s $$f openmoko/`basename $$f` ; \
 	  done )
@@ -274,42 +274,42 @@ setup-qemu stamps/qemu: \
 
 .PHONY: build-qemu
 build-qemu build/qemu/arm-softmmu/qemu-system-arm: stamps/qemu
-	( cd build/qemu ; ${MAKE} )
+	( cd build/qemu && ${MAKE} )
 
 .PHONY: download-images
 download-images stamps/images: stamps/openmoko
 	[ -e images/openmoko ] || mkdir -p images/openmoko
 	ln -sf `pwd`/openmoko/trunk/src/host/qemu-neo1973/openmoko/env images/openmoko/env
-	( cd images ; ../openmoko/trunk/src/host/qemu-neo1973/openmoko/download.sh )
+	( cd images && ../openmoko/trunk/src/host/qemu-neo1973/openmoko/download.sh )
 	rm -f images/openmoko/env
 	[ -d stamps ] || mkdir stamps
 	touch stamps/images
 
 .PHONY: flash-qemu-official
 flash-qemu-official: stamps/qemu stamps/images
-	( cd build/qemu ; openmoko/flash.sh ../../images/openmoko )
+	( cd build/qemu && openmoko/flash.sh ../../images/openmoko )
 
 .PHONY: flash-qemu-local
 flash-qemu-local: stamps/qemu stamps/openmoko-devel-image
-	( cd build/qemu ; openmoko/flash.sh ../tmp/deploy/images )
+	( cd build/qemu && openmoko/flash.sh ../tmp/deploy/images )
 
 .PHONY: run-qemu
 run-qemu: stamps/qemu 
-	( cd build/qemu ; arm-softmmu/qemu-system-arm \
+	( cd build/qemu && arm-softmmu/qemu-system-arm \
 		-M neo -m 130 -usb -show-cursor \
 		-mtdblock openmoko/openmoko-flash.image \
 		-kernel openmoko/openmoko-kernel.bin )
 
 .PHONY: run-qemu-snapshot
 run-qemu-snapshot: stamps/qemu 
-	( cd build/qemu ; arm-softmmu/qemu-system-arm \
+	( cd build/qemu && arm-softmmu/qemu-system-arm \
 		-M neo -m 130 -usb -show-cursor -snapshot \
 		-mtdblock openmoko/openmoko-flash.image \
 		-kernel openmoko/openmoko-kernel.bin )
 
 .PHONY: run-qemu-vnc
 run-qemu-vnc: stamps/qemu 
-	( cd build/qemu ; arm-softmmu/qemu-system-arm \
+	( cd build/qemu && arm-softmmu/qemu-system-arm \
 		-M neo -m 130 -usb -show-cursor \
 		-vnc localhost:1 -monitor stdio \
 		-mtdblock openmoko/openmoko-flash.image \
@@ -330,15 +330,15 @@ push-openembedded: update-mtn openembedded/_MTN/revision
 		!= "1" ] ; then \
 	  mtn --db=OE.mtn merge -b org.openembedded.dev ; \
 	fi
-	( cd openembedded ; mtn push monotone.openembedded.org org.openembedded.dev )
+	( cd openembedded && mtn push monotone.openembedded.org org.openembedded.dev )
 
 .PHONY: build-package-%
 build-package-%:
-	( . ./setup-env ; cd build ; bitbake -c build $* )
+	( . ./setup-env && cd build && bitbake -c build $* )
 
 .PHONY: clean-package-%
 clean-package-%:
-	( . ./setup-env ; cd build ; bitbake -c clean $* )
+	( . ./setup-env && cd build && bitbake -c clean $* )
 
 .PHONY: clobber
 clobber: clobber-openembedded clobber-qemu
