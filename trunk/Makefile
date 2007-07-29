@@ -338,6 +338,10 @@ push-openembedded: update-mtn openembedded/_MTN/revision
 build-package-%:
 	( . ./setup-env && cd build && bitbake -c build $* )
 
+.PHONY: rebuild-package-%
+rebuild-package-%:
+	( . ./setup-env && cd build && bitbake -c rebuild $* )
+
 .PHONY: clean-package-%
 clean-package-%:
 	( . ./setup-env && cd build && bitbake -c clean $* )
