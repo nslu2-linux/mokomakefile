@@ -297,6 +297,7 @@ flash-qemu-local: stamps/qemu stamps/openmoko-devel-image
 run-qemu: stamps/qemu 
 	( cd build/qemu && arm-softmmu/qemu-system-arm \
 		-M neo -m 130 -usb -show-cursor \
+		-usbdevice keyboard \
 		-mtdblock openmoko/openmoko-flash.image \
 		-kernel openmoko/openmoko-kernel.bin )
 
@@ -304,6 +305,7 @@ run-qemu: stamps/qemu
 run-qemu-snapshot: stamps/qemu 
 	( cd build/qemu && arm-softmmu/qemu-system-arm \
 		-M neo -m 130 -usb -show-cursor -snapshot \
+		-usbdevice keyboard \
 		-mtdblock openmoko/openmoko-flash.image \
 		-kernel openmoko/openmoko-kernel.bin )
 
