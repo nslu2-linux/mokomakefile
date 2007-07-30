@@ -327,7 +327,7 @@ push-openembedded: update-mtn openembedded/_MTN/revision
 		!= "1" ] ; then \
 	  mtn --db=OE.mtn merge -b org.openembedded.dev ; \
 	fi
-	( cd openembedded ; mtn update )
+	( cd openembedded && mtn update )
 	if [ `mtn --db=OE.mtn automate heads org.openembedded.dev | wc -l` \
 		!= "1" ] ; then \
 	  mtn --db=OE.mtn merge -b org.openembedded.dev ; \
