@@ -293,28 +293,34 @@ flash-qemu-official: stamps/qemu stamps/images
 flash-qemu-local: stamps/qemu stamps/openmoko-devel-image
 	( cd build/qemu && openmoko/flash.sh ../tmp/deploy/images )
 
+build/qemu/openmoko/openmoko-sd.image:
+	( cd build/qemu && mkdosfs -C -F 32 -v openmoko/openmoko-sd.image 500000 )
+
 .PHONY: run-qemu
-run-qemu: stamps/qemu 
+run-qemu: stamps/qemu build/qemu/openmoko/openmoko-sd.image
 	( cd build/qemu && arm-softmmu/qemu-system-arm \
 		-M neo -m 130 -usb -show-cursor \
 		-usbdevice keyboard \
 		-mtdblock openmoko/openmoko-flash.image \
+		-sd openmoko/openmoko-sd.image \
 		-kernel openmoko/openmoko-kernel.bin )
 
 .PHONY: run-qemu-snapshot
-run-qemu-snapshot: stamps/qemu 
+run-qemu-snapshot: stamps/qemu build/qemu/openmoko/openmoko-sd.image
 	( cd build/qemu && arm-softmmu/qemu-system-arm \
 		-M neo -m 130 -usb -show-cursor -snapshot \
 		-usbdevice keyboard \
 		-mtdblock openmoko/openmoko-flash.image \
+		-sd openmoko/openmoko-sd.image \
 		-kernel openmoko/openmoko-kernel.bin )
 
 .PHONY: run-qemu-vnc
-run-qemu-vnc: stamps/qemu 
+run-qemu-vnc: stamps/qemu build/qemu/openmoko/openmoko-sd.image
 	( cd build/qemu && arm-softmmu/qemu-system-arm \
 		-M neo -m 130 -usb -show-cursor \
 		-vnc localhost:1 -monitor stdio \
 		-mtdblock openmoko/openmoko-flash.image \
+		-sd openmoko/openmoko-sd.image \
 		-kernel openmoko/openmoko-kernel.bin )
 
 .PHONY: push-makefile
@@ -345,6 +351,10 @@ rebuild-package-%:
 .PHONY: clean-package-%
 clean-package-%:
 	( . ./setup-env && cd build && bitbake -c clean $* )
+
+.PHONY: copy-package-%
+qemu-copy-package-%: build/qemu/openmoko/openmoko-sd.image
+	mcopy -i build/qemu/openmoko/openmoko-sd.image -v build/tmp/deploy/ipk/*/$*_*.ipk ::
 
 .PHONY: clobber
 clobber: clobber-openembedded clobber-qemu
