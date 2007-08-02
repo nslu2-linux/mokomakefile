@@ -294,7 +294,7 @@ flash-qemu-local: stamps/qemu stamps/openmoko-devel-image
 	( cd build/qemu && openmoko/flash.sh ../tmp/deploy/images )
 
 build/qemu/openmoko/openmoko-sd.image:
-	( cd build/qemu && mkdosfs -C -F 32 -v openmoko/openmoko-sd.image 500000 )
+	( cd build/qemu && /sbin/mkdosfs -C -F 32 -v openmoko/openmoko-sd.image 500000 )
 
 .PHONY: run-qemu
 run-qemu: stamps/qemu build/qemu/openmoko/openmoko-sd.image
