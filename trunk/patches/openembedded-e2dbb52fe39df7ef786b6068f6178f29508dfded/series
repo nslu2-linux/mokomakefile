@@ -4,3 +4,4 @@ dash-support-for-building-perl.patch
 dash-support-for-building-mtpaint.patch
 ltrace-no-usr-include.patch
 fix-bashism-kernel-headers.patch
+perl-remove-asm-pages.patch
