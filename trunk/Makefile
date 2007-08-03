@@ -245,12 +245,14 @@ openmoko-devel-image stamps/openmoko-devel-image: \
 	touch stamps/openmoko-devel-image
 
 .PHONY: openmoko-devel-tools
-openmoko-devel-tools: \
+openmoko-devel-tools stamps/openmoko-devel-tools: \
 		stamps/openmoko stamps/bitbake \
 		stamps/openembedded stamps/patches \
 		build/conf/local.conf setup-env
 	( cd build && . ../setup-env && \
 	  bitbake dfu-util-native openocd-native )
+	[ -d stamps ] || mkdir stamps
+	touch stamps/openmoko-devel-tools
 
 .PHONY: qemu
 qemu: setup-qemu build-qemu download-images flash-qemu-official run-qemu
@@ -322,6 +324,20 @@ run-qemu-vnc: stamps/qemu build/qemu/openmoko/openmoko-sd.image
 		-mtdblock openmoko/openmoko-flash.image \
 		-sd openmoko/openmoko-sd.image \
 		-kernel openmoko/openmoko-kernel.bin )
+
+.PHONY: flash-neo-official
+flash-neo-official: stamps/openmoko-devel-tools stamps/images
+	( cd build && ./tmp/staging/`uname -m`-`uname -s | tr '[A-Z]' '[a-z]'`/bin/dfu-util \
+		-a kernel -D `ls -t ../images/openmoko/uImage-*.bin | head -1` )
+	( cd build && ./tmp/staging/`uname -m`-`uname -s | tr '[A-Z]' '[a-z]'`/bin/dfu-util \
+		-a rootfs -D `ls -t ../images/openmoko/*.jffs2 | head -1` )
+
+.PHONY: flash-neo-local
+flash-neo-local: stamps/openmoko-devel-tools stamps/openmoko-devel-image
+	( cd build && ./tmp/staging/`uname -m`-`uname -s | tr '[A-Z]' '[a-z]'`/bin/dfu-util \
+		-a kernel -D `ls -t tmp/deploy/images/uImage-*.bin | head -1` )
+	( cd build && ./tmp/staging/`uname -m`-`uname -s | tr '[A-Z]' '[a-z]'`/bin/dfu-util \
+		-a rootfs -D `ls -t tmp/deploy/images//*.jffs2 | head -1` )
 
 .PHONY: push-makefile
 push-makefile:
