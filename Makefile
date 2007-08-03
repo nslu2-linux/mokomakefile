@@ -244,7 +244,7 @@ openmoko-devel-image stamps/openmoko-devel-image: \
 	[ -d stamps ] || mkdir stamps
 	touch stamps/openmoko-devel-image
 
-.PHONY: openmoko-host-tools
+.PHONY: openmoko-devel-tools
 openmoko-devel-tools: \
 		stamps/openmoko stamps/bitbake \
 		stamps/openembedded stamps/patches \
