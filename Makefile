@@ -257,6 +257,9 @@ openmoko-devel-tools stamps/openmoko-devel-tools: \
 .PHONY: qemu
 qemu: setup-qemu build-qemu download-images flash-qemu-official run-qemu
 
+.PHONY: qemu-local
+qemu-local: setup-qemu build-qemu openmoko-devel-image flash-qemu-local run-qemu
+
 .PHONY: setup-qemu
 setup-qemu stamps/qemu: \
 		stamps/openmoko stamps/patches
