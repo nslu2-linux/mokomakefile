@@ -331,16 +331,16 @@ run-qemu-vnc: stamps/qemu build/qemu/openmoko/openmoko-sd.image
 .PHONY: flash-neo-official
 flash-neo-official: stamps/openmoko-devel-tools stamps/images
 	( cd build && ./tmp/staging/`uname -m`-`uname -s | tr '[A-Z]' '[a-z]'`/bin/dfu-util \
-		-a kernel -D `ls -t ../images/openmoko/uImage-*.bin | head -1` )
+		--device 0x1457:0x5119 -a kernel -D `ls -t ../images/openmoko/uImage-*.bin | head -1` )
 	( cd build && ./tmp/staging/`uname -m`-`uname -s | tr '[A-Z]' '[a-z]'`/bin/dfu-util \
-		-a rootfs -D `ls -t ../images/openmoko/*.jffs2 | head -1` )
+		--device 0x1457:0x5119 -a rootfs -D `ls -t ../images/openmoko/*.jffs2 | head -1` )
 
 .PHONY: flash-neo-local
 flash-neo-local: stamps/openmoko-devel-tools stamps/openmoko-devel-image
 	( cd build && ./tmp/staging/`uname -m`-`uname -s | tr '[A-Z]' '[a-z]'`/bin/dfu-util \
-		-a kernel -D `ls -t tmp/deploy/images/uImage-*.bin | head -1` )
+		--device 0x1457:0x5119 -a kernel -D `ls -t tmp/deploy/images/uImage-*.bin | head -1` )
 	( cd build && ./tmp/staging/`uname -m`-`uname -s | tr '[A-Z]' '[a-z]'`/bin/dfu-util \
-		-a rootfs -D `ls -t tmp/deploy/images//*.jffs2 | head -1` )
+		--device 0x1457:0x5119 -a rootfs -D `ls -t tmp/deploy/images//*.jffs2 | head -1` )
 
 .PHONY: push-makefile
 push-makefile:
