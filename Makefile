@@ -17,8 +17,8 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor,
 # Boston, MA  02110-1301, USA
 
-OPENMOKO_GENERATION = 2007.1
-# OPENMOKO_GENERATION = 2007.2
+# OPENMOKO_GENERATION = 2007.1
+OPENMOKO_GENERATION = 2007.2
 
 OPENMOKO_SVN_REV = HEAD
 BITBAKE_SVN_REV = HEAD
@@ -95,6 +95,8 @@ else
 	[ ! -e stamps/openembedded ] || \
 	[ -z "`grep -e 'e2dbb52fe39df7ef786b6068f6178f29508dfded' openembedded/_MTN/revision`" ] || \
 	( rm -rf openembedded stamps/openembedded )
+	[ ! -e oe ] || \
+	( rm -f oe )
 	[ ! -e setup-env ] || \
 	[ -z "`grep -e '$${OMDIR}/oe' setup-env`" ] || \
 	( rm -f setup-env )
