@@ -422,7 +422,7 @@ rebuild-package-%:
 clean-package-%:
 	( . ./setup-env && cd build && bitbake -c clean $* )
 
-.PHONY: copy-package-%
+.PHONY: qemu-copy-package-%
 qemu-copy-package-%: build/qemu/openmoko/openmoko-sd.image
 	mcopy -i build/qemu/openmoko/openmoko-sd.image -v build/tmp/deploy/ipk/*/$*_*.ipk ::
 
