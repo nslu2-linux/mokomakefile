@@ -17,10 +17,16 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor,
 # Boston, MA  02110-1301, USA
 
-# We're totally unfrozen now
+OPENMOKO_GENERATION = 2007.1
+# OPENMOKO_GENERATION = 2007.2
+
 OPENMOKO_SVN_REV = HEAD
 BITBAKE_SVN_REV = HEAD
+ifeq ("${OPENMOKO_GENERATION}","2007.1")
 OPENMOKO_MTN_REV = e2dbb52fe39df7ef786b6068f6178f29508dfded
+else
+OPENMOKO_MTN_REV = HEAD
+endif
 
 MTN_VERSION := $(shell mtn --version | awk '{ print $$2; }')
 
@@ -28,7 +34,7 @@ ifndef MTN_VERSION
 $(error Cannot determine version for monotone using "mtn --version")
 endif
 
-ifdef OPENMOKO_MTN_REV
+ifneq ("${OPENMOKO_MTN_REV}","HEAD")
 MTN_REV_FLAGS = -r ${OPENMOKO_MTN_REV}
 endif
 
@@ -39,7 +45,17 @@ OE_SNAPSHOT_NAME := OE-this-is-for-mtn-${MTN_VERSION}.mtn.bz2
 # MM_SVN_SITE := svn.projects.openmoko.org
 # MM_SVN_PATH := /var/lib/gforge/chroot/svnroot/mokomakefile
 MM_SVN_SITE := svn.nslu2-linux.org
-MM_SVN_PATH := /svnroot/mokomakefile
+ifeq ("${OPENMOKO_GENERATION}","2007.1")
+MM_SVN_PATH := svnroot/mokomakefile/trunk
+else
+MM_SVN_PATH := svnroot/mokomakefile/branches/OM-2007.2
+endif
+
+ifeq ("${OPENMOKO_GENERATION}","2007.1")
+BB_SVN_PATH := bitbake/branches/bitbake-1.6
+else
+BB_SVN_PATH := bitbake/branches/bitbake-1.8
+endif
 
 .PHONY: all
 all: openmoko-devel-image openmoko-devel-tools build-qemu
@@ -52,16 +68,42 @@ force-rebuild:
 		xargs /bin/rm -rf
 
 .PHONY: setup
-setup:  setup-bitbake setup-mtn setup-openembedded setup-openmoko \
+setup:  check-generation setup-bitbake setup-mtn setup-openembedded setup-openmoko \
 	setup-patches setup-config setup-env
 
 .PHONY: update
-update: update-mtn update-patches update-openembedded update-bitbake update-openmoko
+update: check-generation update-mtn update-patches update-openembedded update-bitbake update-openmoko
+
+.PHONY: check-generation
+check-generation:
+	[ ! -e stamps/bitbake ] || \
+	( grep -e '${BB_SVN_PATH}' bitbake/.svn/entries > /dev/null ) || \
+	( rm -rf bitbake stamps/bitbake )
+	[ ! -e stamps/patches ] || \
+	( grep -e '${MM_SVN_PATH}' patches/.svn/entries > /dev/null ) || \
+	( rm -rf patches stamps/patches )
+ifeq ("${OPENMOKO_GENERATION}","2007.1")
+	[ ! -e stamps/openembedded ] || \
+	( grep -e '${OPENMOKO_MTN_REV}' openembedded/_MTN/revision > /dev/null ) || \
+	( rm -rf openembedded stamps/openembedded )
+	[ ! -e setup-env ] || \
+	( grep -e '$${OMDIR}/oe' setup-env > /dev/null ) || \
+	( rm -f setup-env )
+	[ ! -e build/conf/site.conf ] || \
+	( rm -f build/conf/site.conf )
+else
+	[ ! -e stamps/openembedded ] || \
+	[ -z "`grep -e 'e2dbb52fe39df7ef786b6068f6178f29508dfded' openembedded/_MTN/revision`" ] || \
+	( rm -rf openembedded stamps/openembedded )
+	[ ! -e setup-env ] || \
+	[ -z "`grep -e '$${OMDIR}/oe' setup-env`" ] || \
+	( rm -f setup-env )
+endif
 
 .PHONY: setup-bitbake
 setup-bitbake stamps/bitbake:
 	[ -e stamps/bitbake ] || \
-	( svn co -r ${BITBAKE_SVN_REV} svn://svn.berlios.de/bitbake/branches/bitbake-1.6 bitbake )
+	( svn co -r ${BITBAKE_SVN_REV} svn://svn.berlios.de/${BB_SVN_PATH} bitbake )
 	[ -d stamps ] || mkdir stamps
 	touch stamps/bitbake
 
@@ -94,24 +136,28 @@ setup-openembedded stamps/openembedded: stamps/OE.mtn
 setup-openmoko-developer:
 	[ ! -e openmoko ] || ( mv openmoko openmoko-user )
 	( svn co -r ${OPENMOKO_SVN_REV} https://svn.openmoko.org/ openmoko )
+ifeq ("${OPENMOKO_GENERATION}","2007.1")
 	[ -e oe ] || \
 	( ln -sfn openmoko/trunk/oe . )
+endif
 	[ -d stamps ] || mkdir stamps
 	touch stamps/openmoko
 
 .PHONY: setup-openmoko
 setup-openmoko stamps/openmoko:
-	[ -e stamps/openmoko ] || \
+	[ -e stamps/openmoko ] || [ -e openmoko/.svn/entries ] || \
 	( svn co -r ${OPENMOKO_SVN_REV} http://svn.openmoko.org/ openmoko )
+ifeq ("${OPENMOKO_GENERATION}","2007.1")
 	[ -e oe ] || \
 	( ln -sfn openmoko/trunk/oe . )
+endif
 	[ -d stamps ] || mkdir stamps
 	touch stamps/openmoko
 
 .PHONY: setup-patches
 setup-patches stamps/patches: stamps/bitbake stamps/openembedded stamps/openmoko
 	[ -e stamps/patches ] || \
-	( svn co http://${MM_SVN_SITE}/${MM_SVN_PATH}/trunk/patches patches )
+	( svn co http://${MM_SVN_SITE}/${MM_SVN_PATH}/patches patches )
 	[ -e bitbake/patches ] && \
 	( cd bitbake && quilt pop -a -f ) || true
 	( cd bitbake && svn revert -R . )
@@ -146,6 +192,10 @@ setup-config build/conf/local.conf:
 	( echo 'MACHINE = "fic-gta01"' > build/conf/local.conf ; \
 	  echo 'DISTRO = "openmoko"' >> build/conf/local.conf ; \
 	  echo 'BUILD_ARCH = "'`uname -m`'"' >> build/conf/local.conf )
+ifneq ("${OPENMOKO_GENERATION}","2007.1")
+	[ -e build/conf/site.conf ] || \
+	( ln -s ../../openmoko/trunk/oe/conf/site.conf build/conf/site.conf )
+endif
 
 .PHONY: setup-machine-neo
 setup-machine-neo: setup-machine-fic-gta01
@@ -160,16 +210,22 @@ setup-machine-%: setup-config
 
 setup-env:
 	[ -e setup-env ] || \
-	( echo 'export OMDIR="'`pwd`'"' > setup-env && \
-	  echo \
+	echo 'export OMDIR="'`pwd`'"' > setup-env
+ifeq ("${OPENMOKO_GENERATION}","2007.1")
+	echo \
 	'export BBPATH="$${OMDIR}/build:$${OMDIR}/oe:$${OMDIR}/openembedded"' \
-		>> setup-env && \
-	  echo \
+		>> setup-env
+else
+	echo \
+	'export BBPATH="$${OMDIR}/build:$${OMDIR}/openembedded"' \
+		>> setup-env
+endif
+	echo \
 	'export PYTHONPATH="$${OMDIR}/bitbake/libbitbake"' \
-		>> setup-env && \
-	  echo \
+		>> setup-env
+	echo \
 	'export PATH="$${OMDIR}/bitbake/bin:$${PATH}"' \
-		>> setup-env )
+		>> setup-env
 
 .PHONY: update-makefile
 update-makefile:
@@ -202,17 +258,12 @@ update-mtn: stamps/OE.mtn
 update-openembedded: update-mtn stamps/openembedded
 	( cd openembedded && quilt pop -a -f ) || true
 	( cd openembedded && mtn revert . )
-	@if [ -n "${OPENMOKO_MTN_REV}" -a \
-	     "${OPENMOKO_MTN_REV}" != "`(cd openembedded ; mtn automate get_base_revision_id)`" ] ; then \
-	  echo "OpenMoko is now using a frozen OE version which doesn't match your OE checkout." ; \
-	  echo "You will need to run \"make clobber-openembedded setup-openembedded\" to fix this." ; \
-	  echo "Unfortunately, this will force a complete rebuild of *everything* (it's unavoidable)." ; \
-	  echo "Alternatively, comment out the OPENMOKO_MTN_REV definition to use unofficial OE head." ; \
-	  false ; \
-	fi
 	( cd openembedded && mtn update ${MTN_REV_FLAGS} ) || \
 	( cd openembedded && mtn update \
-		-r `mtn automate heads | head -n1` )
+		-r `mtn automate heads | head -n1` ) || \
+	( echo "If the mtn update failed, and you've just changed between the OM2007.1 and OM2007.2 generations," ; \
+	  echo "then you should remove the 'openembedded', 'build/tmp' and 'stamps' directories and start again." ; \
+	  false )
 	[ ! -e patches/openembedded-${OPENMOKO_MTN_REV} ] || \
 	( cd openembedded && rm -f patches && \
 	  ln -sfn ../patches/openembedded-${OPENMOKO_MTN_REV} patches )
