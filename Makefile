@@ -85,21 +85,23 @@ check-generation:
 ifeq ("${OPENMOKO_GENERATION}","2007.1")
 	[ ! -e stamps/openembedded ] || \
 	( grep -e '${OPENMOKO_MTN_REV}' openembedded/_MTN/revision > /dev/null ) || \
-	( rm -rf openembedded stamps/openembedded )
+	( rm -rf openembedded stamps/openembedded && mv build build-OM-2007.2 )
+	[ ! -e build-OM-2007.1 ] || \
+	( mv build-OM-2007.1 build )
 	[ ! -e setup-env ] || \
 	( grep -e '$${OMDIR}/oe' setup-env > /dev/null ) || \
 	( rm -f setup-env )
-	[ ! -e build/conf/site.conf ] || \
-	( rm -f build/conf/site.conf )
 else
 	[ ! -e stamps/openembedded ] || \
 	[ -z "`grep -e 'e2dbb52fe39df7ef786b6068f6178f29508dfded' openembedded/_MTN/revision`" ] || \
-	( rm -rf openembedded stamps/openembedded )
-	[ ! -e oe ] || \
-	( rm -f oe )
+	( rm -rf openembedded stamps/openembedded && mv build build-OM-2007.1 )
+	[ ! -e build-OM-2007.2 ] || \
+	( mv build-OM-2007.2 build )
 	[ ! -e setup-env ] || \
 	[ -z "`grep -e '$${OMDIR}/oe' setup-env`" ] || \
 	( rm -f setup-env )
+	[ ! -e oe ] || \
+	( rm -f oe )
 endif
 
 .PHONY: setup-bitbake
@@ -262,10 +264,7 @@ update-openembedded: update-mtn stamps/openembedded
 	( cd openembedded && mtn revert . )
 	( cd openembedded && mtn update ${MTN_REV_FLAGS} ) || \
 	( cd openembedded && mtn update \
-		-r `mtn automate heads | head -n1` ) || \
-	( echo "If the mtn update failed, and you've just changed between the OM2007.1 and OM2007.2 generations," ; \
-	  echo "then you should remove the 'openembedded', 'build/tmp' and 'stamps' directories and start again." ; \
-	  false )
+		-r `mtn automate heads | head -n1` )
 	[ ! -e patches/openembedded-${OPENMOKO_MTN_REV} ] || \
 	( cd openembedded && rm -f patches && \
 	  ln -sfn ../patches/openembedded-${OPENMOKO_MTN_REV} patches )
