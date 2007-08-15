@@ -1,0 +1,63 @@
+This patch applies the fix from openembedded's perl-native-5.8.8 package to
+fix perl compilation when using dash as /bin/sh
+
+diff -Nur openembedded.orig/packages/perl/files/native-makedepend-dash.patch openembedded/packages/perl/files/native-makedepend-dash.patch
+--- openembedded.orig/packages/perl/files/native-makedepend-dash.patch	1969-12-31 21:00:00.000000000 -0300
++++ openembedded/packages/perl/files/native-makedepend-dash.patch	2007-07-01 22:37:28.000000000 -0300
+@@ -0,0 +1,13 @@
++Index: perl-5.8.8/makedepend.SH
++===================================================================
++--- perl-5.8.8.orig/makedepend.SH	2007-05-24 12:06:52.000000000 +1000
+++++ perl-5.8.8/makedepend.SH	2007-05-24 12:27:33.000000000 +1000
++@@ -128,7 +128,7 @@
++     *.y) filebase=`basename $file .y` ;;
++     esac
++     case "$file" in
++-    */*) finc="-I`echo $file | sed 's#/[^/]*$##`" ;;
+++    */*) finc="-I`echo $file | sed 's#/[^/]*$##'`" ;;
++     *)   finc= ;;
++     esac
++     $echo "Finding dependencies for $filebase$_o."
+diff -Nur openembedded.orig/packages/perl/perl-5.8.7/native-makedepend-dash.patch openembedded/packages/perl/perl-5.8.7/native-makedepend-dash.patch
+--- openembedded.orig/packages/perl/perl-5.8.7/native-makedepend-dash.patch	1969-12-31 21:00:00.000000000 -0300
++++ openembedded/packages/perl/perl-5.8.7/native-makedepend-dash.patch	2007-07-01 22:37:28.000000000 -0300
+@@ -0,0 +1,13 @@
++Index: perl-5.8.8/makedepend.SH
++===================================================================
++--- perl-5.8.8.orig/makedepend.SH	2007-05-24 12:06:52.000000000 +1000
+++++ perl-5.8.8/makedepend.SH	2007-05-24 12:27:33.000000000 +1000
++@@ -128,7 +128,7 @@
++     *.y) filebase=`basename $file .y` ;;
++     esac
++     case "$file" in
++-    */*) finc="-I`echo $file | sed 's#/[^/]*$##`" ;;
+++    */*) finc="-I`echo $file | sed 's#/[^/]*$##'`" ;;
++     *)   finc= ;;
++     esac
++     $echo "Finding dependencies for $filebase$_o."
+diff -Nur openembedded.orig/packages/perl/perl_5.8.7.bb openembedded/packages/perl/perl_5.8.7.bb
+--- openembedded.orig/packages/perl/perl_5.8.7.bb	2007-07-02 06:50:45.000000000 -0300
++++ openembedded/packages/perl/perl_5.8.7.bb	2007-07-01 22:37:28.000000000 -0300
+@@ -13,7 +13,8 @@
+ 	    file://config.sh-i686-linux \
+ 	    file://config.sh-x86_64-linux \
+ 	    file://config.sh-sh3-linux \
+-	    file://config.sh-sh4-linux"
++	    file://config.sh-sh4-linux \
++	    file://native-makedepend-dash.patch;patch=1"
+ 
+ # Patches for sh3/sh4, use gcc to link and override generaet.sh to
+ # use PIC mode for compiling shared library objects.
+diff -Nur openembedded.orig/packages/perl/perl-native_5.8.7.bb openembedded/packages/perl/perl-native_5.8.7.bb
+--- openembedded.orig/packages/perl/perl-native_5.8.7.bb	2007-07-02 06:50:45.000000000 -0300
++++ openembedded/packages/perl/perl-native_5.8.7.bb	2007-07-01 22:37:28.000000000 -0300
+@@ -9,7 +9,8 @@
+ DEPENDS = "virtual/db-native gdbm-native"
+ 
+ SRC_URI = "http://ftp.funet.fi/pub/CPAN/src/perl-${PV}.tar.gz \
+-           file://Configure-multilib.patch;patch=1"
++           file://Configure-multilib.patch;patch=1 \
++           file://native-makedepend-dash.patch;patch=1"
+ S = "${WORKDIR}/perl-${PV}"
+ 
+ #perl is not parallel_make safe

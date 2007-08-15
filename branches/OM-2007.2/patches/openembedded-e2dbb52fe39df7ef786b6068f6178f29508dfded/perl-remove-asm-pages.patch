@@ -1,0 +1,28 @@
+diff -Nur openembedded.orig/packages/perl/perl-native_5.8.7.bb openembedded/packages/perl/perl-native_5.8.7.bb
+--- openembedded.orig/packages/perl/perl-native_5.8.7.bb	2007-08-03 10:32:28.000000000 +0200
++++ openembedded/packages/perl/perl-native_5.8.7.bb		2007-08-03 10:38:00.000000000 +0200
+@@ -10,7 +10,8 @@
+ 
+ SRC_URI = "http://ftp.funet.fi/pub/CPAN/src/perl-${PV}.tar.gz \
+            file://Configure-multilib.patch;patch=1 \
+-           file://native-makedepend-dash.patch;patch=1"
++           file://native-makedepend-dash.patch;patch=1 \
++           file://SysV.xs-asm-pages.patch;patch=1"
+ S = "${WORKDIR}/perl-${PV}"
+ 
+ #perl is not parallel_make safe
+--- openembedded.org/packages/perl/files/SysV.xs-asm-pages.patch	1970-01-01 01:00:00.000000000 +0100
++++ openembedded/packages/perl/files/SysV.xs-asm-pages.patch	2007-08-03 10:52:36.000000000 +0200
+@@ -0,0 +1,12 @@
++--- perl-5.8.7.org/ext/IPC/SysV/SysV.xs	2007-08-03 10:43:52.000000000 +0200
+++++ perl-5.8.7/ext/IPC/SysV/SysV.xs		2007-08-03 10:44:01.000000000 +0200
++@@ -3,9 +3,6 @@
++ #include "XSUB.h"
++ 
++ #include <sys/types.h>
++-#ifdef __linux__
++-#   include <asm/page.h>
++-#endif
++ #if defined(HAS_MSG) || defined(HAS_SEM) || defined(HAS_SHM)
++ #ifndef HAS_SEM
++ #   include <sys/ipc.h>

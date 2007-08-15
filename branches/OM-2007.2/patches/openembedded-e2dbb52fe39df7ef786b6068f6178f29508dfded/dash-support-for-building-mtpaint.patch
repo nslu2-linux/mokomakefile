@@ -1,0 +1,28 @@
+This patch works around a failure on mtpaint's configure script on dash by
+forcing it to use /bin/bash
+
+diff -Nur openembedded.orig/packages/mtpaint/files/mtpaint-force-bash.patch openembedded/packages/mtpaint/files/mtpaint-force-bash.patch
+--- openembedded.orig/packages/mtpaint/files/mtpaint-force-bash.patch	1969-12-31 21:00:00.000000000 -0300
++++ openembedded/packages/mtpaint/files/mtpaint-force-bash.patch	2007-07-02 07:10:42.000000000 -0300
+@@ -0,0 +1,8 @@
++diff -ur mtpaint-3.02.orig/configure mtpaint-3.02/configure
++--- mtpaint-3.02.orig/configure	2006-10-12 19:25:15.000000000 -0300
+++++ mtpaint-3.02/configure	2007-07-02 07:09:44.000000000 -0300
++@@ -1,3 +1,4 @@
+++#!/bin/bash
++ # Mini configure script
++ # 1-10-2004
++ 
+diff -Nur openembedded.orig/packages/mtpaint/mtpaint_3.02.bb openembedded/packages/mtpaint/mtpaint_3.02.bb
+--- openembedded.orig/packages/mtpaint/mtpaint_3.02.bb	2007-07-02 07:18:54.000000000 -0300
++++ openembedded/packages/mtpaint/mtpaint_3.02.bb	2007-07-02 07:12:49.000000000 -0300
+@@ -3,7 +3,8 @@
+ DEPENDS = "gtk+ jpeg"
+ HOMEPAGE = "http://mtpaint.sf.net"
+ 
+-SRC_URI = "${SOURCEFORGE_MIRROR}/mtpaint/mtpaint-3.02.tar.bz2"
++SRC_URI = "${SOURCEFORGE_MIRROR}/mtpaint/mtpaint-3.02.tar.bz2 \
++	file://mtpaint-force-bash.patch;patch=1"
+ 
+ do_configure() {
+ 	./configure gtk2

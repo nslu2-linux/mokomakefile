@@ -1,0 +1,34 @@
+---
+ trunk/oe/packages/openmoko-pim/openmoko-dates/compile-fix.patch |   10 ++++++++++
+ trunk/oe/packages/openmoko-pim/openmoko-dates_svn.bb            |    3 ++-
+ 2 files changed, 12 insertions(+), 1 deletion(-)
+
+Index: openmoko/trunk/oe/packages/openmoko-pim/openmoko-dates/compile-fix.patch
+===================================================================
+--- /dev/null
++++ openmoko/trunk/oe/packages/openmoko-pim/openmoko-dates/compile-fix.patch
+@@ -0,0 +1,10 @@
++--- omoko/src/dates_navigator.c~	2007-02-17 15:54:36.000000000 +1030
+++++ omoko/src/dates_navigator.c	2007-02-17 15:55:10.000000000 +1030
++@@ -21,7 +21,6 @@
++ #include <libecal/e-cal.h>
++ #include <libecal/e-cal-time-util.h>
++ #include <libical/ical.h>
++-#include <libedataserver/e-data-server-util.h>
++ 
++ #include <gtk/gtk.h>
++ #include <glib/gi18n.h>
+Index: openmoko/trunk/oe/packages/openmoko-pim/openmoko-dates_svn.bb
+===================================================================
+--- openmoko.orig/trunk/oe/packages/openmoko-pim/openmoko-dates_svn.bb
++++ openmoko/trunk/oe/packages/openmoko-pim/openmoko-dates_svn.bb
+@@ -5,7 +5,8 @@
+ PV = "0.1+svn${SRCDATE}"
+ PR = "r0"
+ 
+-SRC_URI = "svn://svn.o-hand.com/repos/dates/branches/private;module=omoko;proto=https"
++SRC_URI = "svn://svn.o-hand.com/repos/dates/branches/private;module=omoko;proto=https \
++	   file://compile-fix.patch;patch=1"
+ S = "${WORKDIR}/omoko"
+ 
+ inherit autotools pkgconfig gtk-icon-cache
