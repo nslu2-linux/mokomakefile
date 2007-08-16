@@ -215,7 +215,9 @@ setup-config build/conf/local.conf:
 	  echo 'BUILD_ARCH = "'`uname -m`'"' >> build/conf/local.conf )
 ifneq ("${OPENMOKO_GENERATION}","2007.1")
 	[ -e build/conf/site.conf ] || \
-	( ln -s ../../openmoko/trunk/oe/conf/site.conf build/conf/site.conf )
+	( sed -e 's| $${OMDIR}/oe/packages/\*/\*.bb||' \
+		< openmoko/trunk/oe/conf/site.conf \
+		> build/conf/site.conf )
 endif
 
 .PHONY: setup-machine-neo
