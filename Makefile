@@ -233,13 +233,23 @@ endif
 
 .PHONY: update-makefile
 update-makefile:
-	( wget -O Makefile.new http://www.rwhitby.net/files/openmoko/Makefile && \
+ifeq ("${OPENMOKO_GENERATION}","2007.1")
+	( wget -O Makefile.new http://svn.nslu2-linux.org/svnroot/mokomakefile/trunk/Makefile && \
 	  mv Makefile.new Makefile )
+else
+	( wget -O Makefile.new http://svn.nslu2-linux.org/svnroot/mokomakefile/branches/OM-2007.2/Makefile && \
+	  mv Makefile.new Makefile )
+endif
 
 .PHONY: check-makefile
 check-makefile:
-	( wget -q -O - http://www.rwhitby.net/files/openmoko/Makefile | \
+ifeq ("${OPENMOKO_GENERATION}","2007.1")
+	( wget -O - http://svn.nslu2-linux.org/svnroot/mokomakefile/trunk/Makefile | \
 	  diff -u Makefile - )
+else
+	( wget -O - http://svn.nslu2-linux.org/svnroot/mokomakefile/branches/OM-2007.2/Makefile | \
+	  diff -u Makefile - )
+endif
 
 .PHONY: update-bitbake
 update-bitbake: stamps/bitbake
@@ -393,10 +403,6 @@ flash-neo-local: stamps/openmoko-devel-tools stamps/openmoko-devel-image
 		--device 0x1457:0x5119 -a kernel -D `ls -t tmp/deploy/images/uImage-*.bin | head -1` )
 	( cd build && ./tmp/staging/`uname -m`-`uname -s | tr '[A-Z]' '[a-z]'`/bin/dfu-util \
 		--device 0x1457:0x5119 -a rootfs -D `ls -t tmp/deploy/images//*.jffs2 | head -1` )
-
-.PHONY: push-makefile
-push-makefile:
-	scp Makefile www.rwhitby.net:htdocs/files/openmoko/Makefile
 
 .PHONY: push-openembedded
 push-openembedded: update-mtn openembedded/_MTN/revision
