@@ -76,6 +76,23 @@ update: check-generation update-mtn update-patches update-openembedded update-bi
 
 .PHONY: check-generation
 check-generation:
+ifeq ("${OPENMOKO_GENERATION}","2007.1")
+	@ echo "   ___                               _           ____   ___   ___ _____ _ "
+	@ echo "  /___\_ __   ___ _ __   /\/\   ___ | | _____   |___ \ / _ \ / _ \___  / |"
+	@ echo " //  // '_ \ / _ \ '_ \ /    \ / _ \| |/ / _ \    __) | | | | | | | / /| |"
+	@ echo "/ \_//| |_) |  __/ | | / /\/\ \ (_) |   < (_) |  / __/| |_| | |_| |/ /_| |"
+	@ echo "\___/ | .__/ \___|_| |_\/    \/\___/|_|\_\___/  |_____|\___/ \___//_/(_)_|"
+	@ echo "      |_|                                                                 "
+	@ echo
+else
+	@ echo "   ___                               _           ____   ___   ___ _____ ____  "
+	@ echo "  /___\_ __   ___ _ __   /\/\   ___ | | _____   |___ \ / _ \ / _ \___  |___ \ "
+	@ echo " //  // '_ \ / _ \ '_ \ /    \ / _ \| |/ / _ \    __) | | | | | | | / /  __) |"
+	@ echo "/ \_//| |_) |  __/ | | / /\/\ \ (_) |   < (_) |  / __/| |_| | |_| |/ /_ / __/ "
+	@ echo "\___/ | .__/ \___|_| |_\/    \/\___/|_|\_\___/  |_____|\___/ \___//_/(_)_____|"
+	@ echo "      |_|                                                                     "
+	@ echo
+endif
 	[ ! -e stamps/bitbake ] || \
 	( grep -e '${BB_SVN_PATH}' bitbake/.svn/entries > /dev/null ) || \
 	( rm -rf bitbake stamps/bitbake )
