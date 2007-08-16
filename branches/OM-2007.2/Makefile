@@ -462,3 +462,7 @@ clobber-openembedded:
 .PHONY: clobber-qemu
 clobber-qemu:
 	rm -rf build/qemu stamps/qemu
+
+.PHONY: clobber-bitbake
+clobber-bitbake:
+	rm -rf bitbake stamps/bitbake
