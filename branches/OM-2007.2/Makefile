@@ -355,6 +355,14 @@ setup-qemu stamps/qemu: \
 	  for f in $${OMDIR}/openmoko/trunk/src/host/qemu-neo1973/openmoko/* ; do \
 	    ln -s $$f openmoko/`basename $$f` ; \
 	  done )
+ifeq ("${OPENMOKO_GENERATION}","2007.2")
+	( rm -f build/qemu/openmoko/env ; \
+	  sed \
+		-e 's/rootfs_wildcard="openmoko/rootfs_wildcard="Openmoko/' \
+		-e 's|buildhost.openmoko.org/tmp/deploy|people.openmoko.org/mickey|' \
+		< $${OMDIR}/openmoko/trunk/src/host/qemu-neo1973/openmoko/env \
+		> build/qemu/openmoko/env )
+endif
 	[ -d stamps ] || mkdir stamps
 	touch stamps/qemu
 
@@ -377,7 +385,11 @@ flash-qemu-official: stamps/qemu stamps/images
 
 .PHONY: flash-qemu-local
 flash-qemu-local: stamps/qemu stamps/openmoko-devel-image
+ifeq ("${OPENMOKO_GENERATION}","2007.1")
 	( cd build/qemu && openmoko/flash.sh ../tmp/deploy/images )
+else
+	( cd build/qemu && openmoko/flash.sh ../tmp/deploy/glibc/images/fic-gta01 )
+endif
 
 build/qemu/openmoko/openmoko-sd.image:
 	( cd build/qemu && /sbin/mkdosfs -C -F 32 -v openmoko/openmoko-sd.image 500000 )
