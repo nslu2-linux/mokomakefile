@@ -315,6 +315,20 @@ update-openmoko: stamps/openmoko
 	[ ! -e openmoko/patches/series ] || \
 	( cd openmoko && quilt push -a )
 
+.PHONY: prefetch-sources
+prefetch-sources: stamps/openmoko stamps/bitbake \
+		stamps/openembedded stamps/patches \
+		build/conf/local.conf setup-env
+	( cd build && . ../setup-env && \
+	  bitbake -c fetch openmoko-devel-image )
+
+.PHONY: remove-work
+remove-work: stamps/openmoko stamps/bitbake \
+		stamps/openembedded stamps/patches \
+		build/conf/local.conf setup-env
+	( cd build && . ../setup-env && \
+	  bitbake -c rm_work openmoko-devel-image )
+
 .PHONY: openmoko-devel-image
 openmoko-devel-image stamps/openmoko-devel-image: \
 		stamps/openmoko stamps/bitbake \
