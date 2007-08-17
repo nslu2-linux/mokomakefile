@@ -372,7 +372,7 @@ setup-qemu stamps/qemu: \
 ifeq ("${OPENMOKO_GENERATION}","2007.2")
 	( rm -f build/qemu/openmoko/env ; \
 	  sed \
-		-e 's/rootfs_wildcard="openmoko/rootfs_wildcard="Openmoko/' \
+		-e 's/rootfs_wildcard="openmoko/rootfs_wildcard="OpenMoko/' \
 		-e 's|buildhost.openmoko.org/tmp/deploy|people.openmoko.org/mickey|' \
 		< `pwd`/openmoko/trunk/src/host/qemu-neo1973/openmoko/env \
 		> build/qemu/openmoko/env )
@@ -392,7 +392,7 @@ ifeq ("${OPENMOKO_GENERATION}","2007.1")
 else
 	( rm -f images/openmoko/env ; \
 	  sed \
-		-e 's/rootfs_wildcard="openmoko/rootfs_wildcard="Openmoko/' \
+		-e 's/rootfs_wildcard="openmoko/rootfs_wildcard="OpenMoko/' \
 		-e 's|buildhost.openmoko.org/tmp/deploy|people.openmoko.org/mickey|' \
 		< `pwd`/openmoko/trunk/src/host/qemu-neo1973/openmoko/env \
 		> images/openmoko/env )
