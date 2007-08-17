@@ -453,7 +453,11 @@ qemu-copy-package-%: build/qemu/openmoko/openmoko-sd.image
 	mcopy -i build/qemu/openmoko/openmoko-sd.image -v build/tmp/deploy/ipk/*/$*_*.ipk ::
 
 .PHONY: clobber
-clobber: clobber-openembedded clobber-qemu
+clobber: clobber-bitbake clobber-openembedded clobber-qemu
+
+.PHONY: clobber-bitbake
+clobber-bitbake:
+	rm -rf bitbake stamps/bitbake
 
 .PHONY: clobber-openembedded
 clobber-openembedded:
@@ -462,7 +466,3 @@ clobber-openembedded:
 .PHONY: clobber-qemu
 clobber-qemu:
 	rm -rf build/qemu stamps/qemu
-
-.PHONY: clobber-bitbake
-clobber-bitbake:
-	rm -rf bitbake stamps/bitbake
