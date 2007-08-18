@@ -453,10 +453,17 @@ flash-neo-official: stamps/openmoko-devel-tools stamps/images
 
 .PHONY: flash-neo-local
 flash-neo-local: stamps/openmoko-devel-tools stamps/openmoko-devel-image
+ifeq ("${OPENMOKO_GENERATION}","2007.1")
 	( cd build && ./tmp/staging/`uname -m`-`uname -s | tr '[A-Z]' '[a-z]'`/bin/dfu-util \
 		--device 0x1457:0x5119 -a kernel -D `ls -t tmp/deploy/images/uImage-*.bin | head -1` )
 	( cd build && ./tmp/staging/`uname -m`-`uname -s | tr '[A-Z]' '[a-z]'`/bin/dfu-util \
-		--device 0x1457:0x5119 -a rootfs -D `ls -t tmp/deploy/images//*.jffs2 | head -1` )
+		--device 0x1457:0x5119 -a rootfs -D `ls -t tmp/deploy/images/*.jffs2 | head -1` )
+else
+	( cd build && ./tmp/staging/`uname -m`-`uname -s | tr '[A-Z]' '[a-z]'`/bin/dfu-util \
+		--device 0x1457:0x5119 -a kernel -D `ls -t tmp/deploy/glibc/images/fic-gta01/uImage-*.bin | head -1` )
+	( cd build && ./tmp/staging/`uname -m`-`uname -s | tr '[A-Z]' '[a-z]'`/bin/dfu-util \
+		--device 0x1457:0x5119 -a rootfs -D `ls -t tmp/deploy/glibc/images/fic-gta01/*.jffs2 | head -1` )
+endif
 
 .PHONY: push-openembedded
 push-openembedded: update-mtn openembedded/_MTN/revision
@@ -485,7 +492,11 @@ clean-package-%:
 
 .PHONY: qemu-copy-package-%
 qemu-copy-package-%: build/qemu/openmoko/openmoko-sd.image
+ifeq ("${OPENMOKO_GENERATION}","2007.1")
 	mcopy -i build/qemu/openmoko/openmoko-sd.image -v build/tmp/deploy/ipk/*/$*_*.ipk ::
+else
+	mcopy -i build/qemu/openmoko/openmoko-sd.image -v build/tmp/deploy/glibc/ipk/*/$*_*.ipk ::
+endif
 
 .PHONY: clobber
 clobber: clobber-bitbake clobber-openembedded clobber-qemu
