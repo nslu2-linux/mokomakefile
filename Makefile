@@ -46,7 +46,7 @@ OE_SNAPSHOT_NAME := OE-this-is-for-mtn-${MTN_VERSION}.mtn.bz2
 # MM_SVN_PATH := /var/lib/gforge/chroot/svnroot/mokomakefile
 MM_SVN_SITE := svn.nslu2-linux.org
 ifeq ("${OPENMOKO_GENERATION}","2007.1")
-MM_SVN_PATH := svnroot/mokomakefile/trunk
+MM_SVN_PATH := svnroot/mokomakefile/branches/OM-2007.1
 else
 MM_SVN_PATH := svnroot/mokomakefile/branches/OM-2007.2
 endif
@@ -253,7 +253,7 @@ endif
 .PHONY: update-makefile
 update-makefile:
 ifeq ("${OPENMOKO_GENERATION}","2007.1")
-	( wget -O Makefile.new http://svn.nslu2-linux.org/svnroot/mokomakefile/trunk/Makefile && \
+	( wget -O Makefile.new http://svn.nslu2-linux.org/svnroot/mokomakefile/branches/OM-2007.1/Makefile && \
 	  mv Makefile.new Makefile )
 else
 	( wget -O Makefile.new http://svn.nslu2-linux.org/svnroot/mokomakefile/branches/OM-2007.2/Makefile && \
@@ -263,7 +263,7 @@ endif
 .PHONY: check-makefile
 check-makefile:
 ifeq ("${OPENMOKO_GENERATION}","2007.1")
-	( wget -O - http://svn.nslu2-linux.org/svnroot/mokomakefile/trunk/Makefile | \
+	( wget -O - http://svn.nslu2-linux.org/svnroot/mokomakefile/branches/OM-2007.1/Makefile | \
 	  diff -u Makefile - )
 else
 	( wget -O - http://svn.nslu2-linux.org/svnroot/mokomakefile/branches/OM-2007.2/Makefile | \
