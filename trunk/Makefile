@@ -370,14 +370,7 @@ setup-qemu stamps/qemu: \
 	  for f in $${OMDIR}/openmoko/trunk/src/host/qemu-neo1973/openmoko/* ; do \
 	    ln -s $$f openmoko/`basename $$f` ; \
 	  done )
-ifeq ("${OPENMOKO_GENERATION}","2007.2")
-	( rm -f build/qemu/openmoko/env ; \
-	  sed \
-		-e 's/rootfs_wildcard="openmoko/rootfs_wildcard="OpenMoko/' \
-		-e 's|buildhost.openmoko.org/tmp/deploy|people.openmoko.org/mickey|' \
-		< `pwd`/openmoko/trunk/src/host/qemu-neo1973/openmoko/env \
-		> build/qemu/openmoko/env )
-endif
+	ln -sf `pwd`/openmoko/trunk/src/host/qemu-neo1973/openmoko/env build/qemu/openmoko/env
 	[ -d stamps ] || mkdir stamps
 	touch stamps/qemu
 
@@ -388,16 +381,7 @@ build-qemu build/qemu/arm-softmmu/qemu-system-arm: stamps/qemu
 .PHONY: download-images
 download-images stamps/images: stamps/openmoko
 	[ -e images/openmoko ] || mkdir -p images/openmoko
-ifeq ("${OPENMOKO_GENERATION}","2007.1")
 	ln -sf `pwd`/openmoko/trunk/src/host/qemu-neo1973/openmoko/env images/openmoko/env
-else
-	( rm -f images/openmoko/env ; \
-	  sed \
-		-e 's/rootfs_wildcard="openmoko/rootfs_wildcard="OpenMoko/' \
-		-e 's|buildhost.openmoko.org/tmp/deploy|people.openmoko.org/mickey|' \
-		< `pwd`/openmoko/trunk/src/host/qemu-neo1973/openmoko/env \
-		> images/openmoko/env )
-endif
 	( cd images && ../openmoko/trunk/src/host/qemu-neo1973/openmoko/download.sh )
 	rm -f images/openmoko/env
 	[ -d stamps ] || mkdir stamps
