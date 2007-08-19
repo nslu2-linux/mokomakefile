@@ -17,8 +17,8 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor,
 # Boston, MA  02110-1301, USA
 
-# OPENMOKO_GENERATION = 2007.1
-OPENMOKO_GENERATION = 2007.2
+OPENMOKO_GENERATION = 2007.1
+# OPENMOKO_GENERATION = 2007.2
 
 OPENMOKO_SVN_REV = HEAD
 BITBAKE_SVN_REV = HEAD
@@ -48,7 +48,7 @@ MM_SVN_SITE := svn.nslu2-linux.org
 ifeq ("${OPENMOKO_GENERATION}","2007.1")
 MM_SVN_PATH := svnroot/mokomakefile/branches/OM-2007.1
 else
-MM_SVN_PATH := svnroot/mokomakefile/branches/OM-2007.2
+MM_SVN_PATH := svnroot/mokomakefile/trunk
 endif
 
 ifeq ("${OPENMOKO_GENERATION}","2007.1")
@@ -256,7 +256,7 @@ ifeq ("${OPENMOKO_GENERATION}","2007.1")
 	( wget -O Makefile.new http://svn.nslu2-linux.org/svnroot/mokomakefile/branches/OM-2007.1/Makefile && \
 	  mv Makefile.new Makefile )
 else
-	( wget -O Makefile.new http://svn.nslu2-linux.org/svnroot/mokomakefile/branches/OM-2007.2/Makefile && \
+	( wget -O Makefile.new http://svn.nslu2-linux.org/svnroot/mokomakefile/trunk/Makefile && \
 	  mv Makefile.new Makefile )
 endif
 
@@ -266,7 +266,7 @@ ifeq ("${OPENMOKO_GENERATION}","2007.1")
 	( wget -O - http://svn.nslu2-linux.org/svnroot/mokomakefile/branches/OM-2007.1/Makefile | \
 	  diff -u Makefile - )
 else
-	( wget -O - http://svn.nslu2-linux.org/svnroot/mokomakefile/branches/OM-2007.2/Makefile | \
+	( wget -O - http://svn.nslu2-linux.org/svnroot/mokomakefile/trunk/Makefile | \
 	  diff -u Makefile - )
 endif
 
