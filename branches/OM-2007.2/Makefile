@@ -28,10 +28,11 @@ else
 OPENMOKO_MTN_REV = HEAD
 endif
 
-MTN_VERSION := $(shell mtn --version | awk '{ print $$2; }')
+MTN := mtn
+MTN_VERSION := $(shell ${MTN} --version | awk '{ print $$2; }')
 
 ifndef MTN_VERSION
-$(error Cannot determine version for monotone using "mtn --version")
+$(error Cannot determine version for monotone using "${MTN} --version")
 endif
 
 ifneq ("${OPENMOKO_MTN_REV}","HEAD")
@@ -48,7 +49,7 @@ MM_SVN_SITE := svn.nslu2-linux.org
 ifeq ("${OPENMOKO_GENERATION}","2007.1")
 MM_SVN_PATH := svnroot/mokomakefile/branches/OM-2007.1
 else
-MM_SVN_PATH := svnroot/mokomakefile/branches/OM-2007.2
+MM_SVN_PATH := svnroot/mokomakefile/trunk
 endif
 
 ifeq ("${OPENMOKO_GENERATION}","2007.1")
@@ -138,18 +139,18 @@ OE.mtn:
 .PHONY: setup-mtn
 setup-mtn stamps/OE.mtn: OE.mtn
 	[ -e stamps/OE.mtn ] || \
-	( mtn --db=OE.mtn db migrate && \
-	  mtn --db=OE.mtn pull monotone.openembedded.org org.openembedded.dev )
+	( ${MTN} --db=OE.mtn db migrate && \
+	  ${MTN} --db=OE.mtn pull monotone.openembedded.org org.openembedded.dev )
 	[ -d stamps ] || mkdir stamps
 	touch stamps/OE.mtn
 
 .PHONY: setup-openembedded
 setup-openembedded stamps/openembedded: stamps/OE.mtn
 	[ -e stamps/openembedded ] || \
-	( mtn --db=OE.mtn checkout --branch=org.openembedded.dev \
+	( ${MTN} --db=OE.mtn checkout --branch=org.openembedded.dev \
 		${MTN_REV_FLAGS} openembedded ) || \
-	( mtn --db=OE.mtn checkout --branch=org.openembedded.dev \
-		-r `mtn --db=OE.mtn automate heads org.openembedded.dev | head -n1` openembedded )
+	( ${MTN} --db=OE.mtn checkout --branch=org.openembedded.dev \
+		-r `${MTN} --db=OE.mtn automate heads org.openembedded.dev | head -n1` openembedded )
 	[ -d stamps ] || mkdir stamps
 	touch stamps/openembedded
 
@@ -187,7 +188,7 @@ setup-patches stamps/patches: stamps/bitbake stamps/openembedded stamps/openmoko
 	( cd openmoko && svn revert -R . )
 	[ -e openembedded/patches ] && \
 	( cd openembedded && quilt pop -a -f ) || true
-	( cd openembedded && mtn revert . )
+	( cd openembedded && ${MTN} revert . )
 	[ ! -e patches/bitbake-${BITBAKE_SVN_REV} ] || \
 	( cd bitbake && rm -f patches && \
 	  ln -sfn ../patches/bitbake-${BITBAKE_SVN_REV} patches )
@@ -256,7 +257,7 @@ ifeq ("${OPENMOKO_GENERATION}","2007.1")
 	( wget -O Makefile.new http://svn.nslu2-linux.org/svnroot/mokomakefile/branches/OM-2007.1/Makefile && \
 	  mv Makefile.new Makefile )
 else
-	( wget -O Makefile.new http://svn.nslu2-linux.org/svnroot/mokomakefile/branches/OM-2007.2/Makefile && \
+	( wget -O Makefile.new http://svn.nslu2-linux.org/svnroot/mokomakefile/trunk/Makefile && \
 	  mv Makefile.new Makefile )
 endif
 
@@ -266,7 +267,7 @@ ifeq ("${OPENMOKO_GENERATION}","2007.1")
 	( wget -O - http://svn.nslu2-linux.org/svnroot/mokomakefile/branches/OM-2007.1/Makefile | \
 	  diff -u Makefile - )
 else
-	( wget -O - http://svn.nslu2-linux.org/svnroot/mokomakefile/branches/OM-2007.2/Makefile | \
+	( wget -O - http://svn.nslu2-linux.org/svnroot/mokomakefile/trunk/Makefile | \
 	  diff -u Makefile - )
 endif
 
@@ -283,17 +284,17 @@ update-bitbake: stamps/bitbake
 
 .PHONY: update-mtn
 update-mtn: stamps/OE.mtn
-	if [ "${OPENMOKO_MTN_REV}" != "`(cd openembedded && mtn automate get_base_revision_id)`" ] ; then \
-		mtn --db=OE.mtn pull monotone.openembedded.org org.openembedded.dev ; \
+	if [ "${OPENMOKO_MTN_REV}" != "`(cd openembedded && ${MTN} automate get_base_revision_id)`" ] ; then \
+		${MTN} --db=OE.mtn pull monotone.openembedded.org org.openembedded.dev ; \
 	fi
 
 .PHONY: update-openembedded
 update-openembedded: update-mtn stamps/openembedded
 	( cd openembedded && quilt pop -a -f ) || true
-	( cd openembedded && mtn revert . )
-	( cd openembedded && mtn update ${MTN_REV_FLAGS} ) || \
-	( cd openembedded && mtn update \
-		-r `mtn automate heads | head -n1` )
+	( cd openembedded && ${MTN} revert . )
+	( cd openembedded && ${MTN} update ${MTN_REV_FLAGS} ) || \
+	( cd openembedded && ${MTN} update \
+		-r `${MTN} automate heads | head -n1` )
 	[ ! -e patches/openembedded-${OPENMOKO_MTN_REV} ] || \
 	( cd openembedded && rm -f patches && \
 	  ln -sfn ../patches/openembedded-${OPENMOKO_MTN_REV} patches )
@@ -467,16 +468,16 @@ endif
 
 .PHONY: push-openembedded
 push-openembedded: update-mtn openembedded/_MTN/revision
-	if [ `mtn --db=OE.mtn automate heads org.openembedded.dev | wc -l` \
+	if [ `${MTN} --db=OE.mtn automate heads org.openembedded.dev | wc -l` \
 		!= "1" ] ; then \
-	  mtn --db=OE.mtn merge -b org.openembedded.dev ; \
+	  ${MTN} --db=OE.mtn merge -b org.openembedded.dev ; \
 	fi
-	( cd openembedded && mtn update )
-	if [ `mtn --db=OE.mtn automate heads org.openembedded.dev | wc -l` \
+	( cd openembedded && ${MTN} update )
+	if [ `${MTN} --db=OE.mtn automate heads org.openembedded.dev | wc -l` \
 		!= "1" ] ; then \
-	  mtn --db=OE.mtn merge -b org.openembedded.dev ; \
+	  ${MTN} --db=OE.mtn merge -b org.openembedded.dev ; \
 	fi
-	( cd openembedded && mtn push monotone.openembedded.org org.openembedded.dev )
+	( cd openembedded && ${MTN} push monotone.openembedded.org org.openembedded.dev )
 
 .PHONY: build-package-%
 build-package-%:
