@@ -96,10 +96,7 @@ else
 endif
 	[ ! -e stamps/bitbake ] || \
 	( grep -e '${BB_SVN_PATH}' bitbake/.svn/entries > /dev/null ) || \
-	( rm -rf bitbake stamps/bitbake )
-	[ ! -e stamps/patches ] || \
-	( grep -e '${MM_SVN_PATH}' patches/.svn/entries > /dev/null ) || \
-	( rm -rf patches stamps/patches )
+	( rm -rf bitbake stamps/bitbake patches stamps/patches )
 ifeq ("${OPENMOKO_GENERATION}","2007.1")
 	[ ! -e stamps/openembedded ] || \
 	( grep -e '${OPENMOKO_MTN_REV}' openembedded/_MTN/revision > /dev/null ) || \
@@ -488,7 +485,11 @@ else
 endif
 
 .PHONY: clobber
-clobber: clobber-bitbake clobber-openembedded clobber-qemu
+clobber: clobber-patches clobber-bitbake clobber-openembedded clobber-qemu
+
+.PHONY: clobber-patches
+clobber-patches:
+	rm -rf patches stamps/patches
 
 .PHONY: clobber-bitbake
 clobber-bitbake:
