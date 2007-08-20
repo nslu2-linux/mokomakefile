@@ -273,12 +273,14 @@ endif
 
 .PHONY: update-bitbake
 update-bitbake: stamps/bitbake
+	[ ! -e bitbake/patches ] || \
 	( cd bitbake && quilt pop -a -f ) || true
+	[ ! -e bitbake/patches ] || \
 	( cd bitbake && svn revert -R . )
 	( cd bitbake && svn update -r ${BITBAKE_SVN_REV} )
-	[ ! -e patches/bitbake-${BITBAKE_SVN_REV} ] || \
-	( cd bitbake && rm -f patches && \
-	  ln -sfn ../patches/bitbake-${BITBAKE_SVN_REV} patches )
+	rm -f bitbake/patches
+	[ ! -e patches/bitbake-${BITBAKE_SVN_REV}/series ] || \
+	( ln -sfn ../patches/bitbake-${BITBAKE_SVN_REV} bitbake/patches )
 	[ ! -e bitbake/patches/series ] || \
 	( cd bitbake && quilt push -a )
 
@@ -290,14 +292,16 @@ update-mtn: stamps/OE.mtn
 
 .PHONY: update-openembedded
 update-openembedded: update-mtn stamps/openembedded
+	[ ! -e openembedded/patches ] || \
 	( cd openembedded && quilt pop -a -f ) || true
+	[ ! -e openembedded/patches ] || \
 	( cd openembedded && ${MTN} revert . )
 	( cd openembedded && ${MTN} update ${MTN_REV_FLAGS} ) || \
 	( cd openembedded && ${MTN} update \
 		-r `${MTN} automate heads | head -n1` )
-	[ ! -e patches/openembedded-${OPENMOKO_MTN_REV} ] || \
-	( cd openembedded && rm -f patches && \
-	  ln -sfn ../patches/openembedded-${OPENMOKO_MTN_REV} patches )
+	rm -f openembedded/patches
+	[ ! -e patches/openembedded-${OPENMOKO_MTN_REV}/series ] || \
+	( ln -sfn ../patches/openembedded-${OPENMOKO_MTN_REV} openembedded/patches )
 	[ ! -e openembedded/patches/series ] || \
 	( cd openembedded && quilt push -a )
 
@@ -307,12 +311,14 @@ update-patches: stamps/patches
 
 .PHONY: update-openmoko
 update-openmoko: stamps/openmoko
+	[ ! -e openmoko/patches ] || \
 	( cd openmoko && quilt pop -a -f ) || true
+	[ ! -e openmoko/patches ] || \
 	( cd openmoko && svn revert -R . )
 	( cd openmoko && svn update -r ${OPENMOKO_SVN_REV} )
-	[ ! -e patches/openmoko-${OPENMOKO_SVN_REV} ] || \
-	( cd openmoko && rm -f patches && \
-	  ln -sfn ../patches/openmoko-${OPENMOKO_SVN_REV} patches )
+	rm -f openmoko/patches
+	[ ! -e patches/openmoko-${OPENMOKO_SVN_REV}/series ] || \
+	( ln -sfn ../patches/openmoko-${OPENMOKO_SVN_REV} openmoko/patches )
 	[ ! -e openmoko/patches/series ] || \
 	( cd openmoko && quilt push -a )
 
