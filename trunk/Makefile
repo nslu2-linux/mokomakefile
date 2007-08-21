@@ -355,10 +355,10 @@ qemu: setup-qemu build-qemu download-images flash-qemu-official run-qemu
 qemu-local: setup-qemu build-qemu openmoko-devel-image flash-qemu-local run-qemu
 
 .PHONY: setup-qemu
-setup-qemu stamps/qemu: \
+setup-qemu stamps/qemu: setup-env \
 		stamps/openmoko stamps/patches
 	[ -e build/qemu ] || \
-	( cd build && mkdir -p qemu )
+	( mkdir -p build/qemu )
 	[ -e build/qemu/Makefile ] || \
 	( . ./setup-env && cd build/qemu && \
 	  $${OMDIR}/openmoko/trunk/src/host/qemu-neo1973/configure \
