@@ -485,7 +485,7 @@ else
 endif
 
 .PHONY: clobber
-clobber: clobber-patches clobber-bitbake clobber-openembedded clobber-qemu
+clobber: clobber-patches clobber-bitbake clobber-openmoko clobber-openembedded clobber-qemu
 
 .PHONY: clobber-patches
 clobber-patches:
@@ -494,6 +494,10 @@ clobber-patches:
 .PHONY: clobber-bitbake
 clobber-bitbake:
 	rm -rf bitbake stamps/bitbake
+
+.PHONY: clobber-openmoko
+clobber-openmoko:
+	rm -rf openmoko stamps/openmoko
 
 .PHONY: clobber-openembedded
 clobber-openembedded:
