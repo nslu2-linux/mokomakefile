@@ -69,8 +69,9 @@ force-rebuild:
 		xargs /bin/rm -rf
 
 .PHONY: setup
-setup:  check-generation setup-bitbake setup-mtn setup-openembedded setup-openmoko \
-	setup-patches setup-config setup-env
+setup:  check-generation setup-patches \
+	setup-bitbake setup-mtn setup-openembedded setup-openmoko \
+	setup-config setup-env
 
 .PHONY: update
 update: check-generation update-mtn update-patches update-openembedded update-bitbake update-openmoko
@@ -120,9 +121,14 @@ else
 endif
 
 .PHONY: setup-bitbake
-setup-bitbake stamps/bitbake:
+setup-bitbake stamps/bitbake: stamps/patches
 	[ -e stamps/bitbake ] || \
 	( svn co -r ${BITBAKE_SVN_REV} svn://svn.berlios.de/${BB_SVN_PATH} bitbake )
+	rm -f bitbake/patches
+	[ ! -e patches/bitbake-${BITBAKE_SVN_REV}/series ] || \
+	( ln -sfn ../patches/bitbake-${BITBAKE_SVN_REV} bitbake/patches )
+	[ ! -e bitbake/patches/series ] || \
+	( cd bitbake && quilt push -a )
 	[ -d stamps ] || mkdir stamps
 	touch stamps/bitbake
 
@@ -142,65 +148,56 @@ setup-mtn stamps/OE.mtn: OE.mtn
 	touch stamps/OE.mtn
 
 .PHONY: setup-openembedded
-setup-openembedded stamps/openembedded: stamps/OE.mtn
+setup-openembedded stamps/openembedded: stamps/OE.mtn stamps/patches
 	[ -e stamps/openembedded ] || \
 	( ${MTN} --db=OE.mtn checkout --branch=org.openembedded.dev \
 		${MTN_REV_FLAGS} openembedded ) || \
 	( ${MTN} --db=OE.mtn checkout --branch=org.openembedded.dev \
 		-r `${MTN} --db=OE.mtn automate heads org.openembedded.dev | head -n1` openembedded )
+	rm -f openembedded/patches
+	[ ! -e patches/openembedded-${OPENMOKO_MTN_REV}/series ] || \
+	( ln -sfn ../patches/openembedded-${OPENMOKO_MTN_REV} openembedded/patches )
+	[ ! -e openembedded/patches/series ] || \
+	( cd openembedded && quilt push -a )
 	[ -d stamps ] || mkdir stamps
 	touch stamps/openembedded
 
 .PHONY: setup-openmoko-developer
-setup-openmoko-developer:
+setup-openmoko-developer: stamps/patches
 	[ ! -e openmoko ] || ( mv openmoko openmoko-user )
 	( svn co -r ${OPENMOKO_SVN_REV} https://svn.openmoko.org/ openmoko )
 ifeq ("${OPENMOKO_GENERATION}","2007.1")
 	[ -e oe ] || \
 	( ln -sfn openmoko/trunk/oe . )
 endif
+	rm -f openmoko/patches
+	[ ! -e patches/openmoko-${OPENMOKO_SVN_REV}/series ] || \
+	( ln -sfn ../patches/openmoko-${OPENMOKO_SVN_REV} openmoko/patches )
+	[ ! -e openmoko/patches/series ] || \
+	( cd openmoko && quilt push -a )
 	[ -d stamps ] || mkdir stamps
 	touch stamps/openmoko
 
 .PHONY: setup-openmoko
-setup-openmoko stamps/openmoko:
+setup-openmoko stamps/openmoko: stamps/patches
 	[ -e stamps/openmoko ] || [ -e openmoko/.svn/entries ] || \
 	( svn co -r ${OPENMOKO_SVN_REV} http://svn.openmoko.org/ openmoko )
 ifeq ("${OPENMOKO_GENERATION}","2007.1")
 	[ -e oe ] || \
 	( ln -sfn openmoko/trunk/oe . )
 endif
+	rm -f openmoko/patches
+	[ ! -e patches/openmoko-${OPENMOKO_SVN_REV}/series ] || \
+	( ln -sfn ../patches/openmoko-${OPENMOKO_SVN_REV} openmoko/patches )
+	[ ! -e openmoko/patches/series ] || \
+	( cd openmoko && quilt push -a )
 	[ -d stamps ] || mkdir stamps
 	touch stamps/openmoko
 
 .PHONY: setup-patches
-setup-patches stamps/patches: stamps/bitbake stamps/openembedded stamps/openmoko
+setup-patches stamps/patches:
 	[ -e stamps/patches ] || \
 	( svn co http://${MM_SVN_SITE}/${MM_SVN_PATH}/patches patches )
-	[ -e bitbake/patches ] && \
-	( cd bitbake && quilt pop -a -f ) || true
-	( cd bitbake && svn revert -R . )
-	[ -e openmoko/patches ] && \
-	( cd openmoko && quilt pop -a -f ) || true
-	( cd openmoko && svn revert -R . )
-	[ -e openembedded/patches ] && \
-	( cd openembedded && quilt pop -a -f ) || true
-	( cd openembedded && ${MTN} revert . )
-	[ ! -e patches/bitbake-${BITBAKE_SVN_REV} ] || \
-	( cd bitbake && rm -f patches && \
-	  ln -sfn ../patches/bitbake-${BITBAKE_SVN_REV} patches )
-	[ ! -e patches/openmoko-${OPENMOKO_SVN_REV} ] || \
-	( cd openmoko && rm -f patches && \
-	  ln -sfn ../patches/openmoko-${OPENMOKO_SVN_REV} patches )
-	[ ! -e patches/openembedded-${OPENMOKO_MTN_REV} ] || \
-	( cd openembedded && rm -f patches && \
-	  ln -sfn ../patches/openembedded-${OPENMOKO_MTN_REV} patches )
-	[ ! -e openmoko/patches/series ] || \
-	( cd openmoko && quilt push -a )
-	[ ! -e bitbake/patches/series ] || \
-	( cd bitbake && quilt push -a )
-	[ ! -e openembedded/patches/series ] || \
-	( cd openembedded && quilt push -a )
 	[ -d stamps ] || mkdir stamps
 	touch stamps/patches
 
