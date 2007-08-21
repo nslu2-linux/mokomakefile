@@ -29,18 +29,12 @@ OPENMOKO_MTN_REV = HEAD
 endif
 
 MTN := mtn
-MTN_VERSION := $(shell ${MTN} --version | awk '{ print $$2; }')
-
-ifndef MTN_VERSION
-$(error Cannot determine version for monotone using "${MTN} --version")
-endif
 
 ifneq ("${OPENMOKO_MTN_REV}","HEAD")
 MTN_REV_FLAGS = -r ${OPENMOKO_MTN_REV}
 endif
 
 OE_SNAPSHOT_SITE := http://www.openembedded.org/snapshots
-OE_SNAPSHOT_NAME := OE-this-is-for-mtn-${MTN_VERSION}.mtn.bz2
 
 # Set it back to these (svn:// protocol) when anon svn is fixed.
 # MM_SVN_SITE := svn.projects.openmoko.org
@@ -133,9 +127,16 @@ setup-bitbake stamps/bitbake: stamps/patches
 	touch stamps/bitbake
 
 OE.mtn:
+	if [ -z "`${MTN} --version | awk '{ print $$2; }'`" ] ; then \
+	  echo 'Cannot determine version for monotone using "${MTN} --version"' ; \
+	  false ; \
+	fi
 	[ -e OE.mtn ] || \
-	( ( wget -c -O OE.mtn.bz2 ${OE_SNAPSHOT_SITE}/${OE_SNAPSHOT_NAME} || \
-	    wget -c -O OE.mtn.bz2 ${OE_SNAPSHOT_SITE}/OE.mtn.bz2 ) && \
+	( ( version=`${MTN} --version | awk '{ print $$2; }'` ; \
+	    wget -c -O OE.mtn.bz2 \
+		${OE_SNAPSHOT_SITE}/OE-this-is-for-mtn-$$version.mtn.bz2 || \
+	    wget -c -O OE.mtn.bz2 \
+		${OE_SNAPSHOT_SITE}/OE.mtn.bz2 ) && \
 	  bunzip2 -c OE.mtn.bz2 > OE.mtn.partial && \
 	  mv OE.mtn.partial OE.mtn )
 
