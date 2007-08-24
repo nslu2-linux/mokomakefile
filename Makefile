@@ -49,7 +49,7 @@ endif
 ifeq ("${OPENMOKO_GENERATION}","2007.1")
 BB_SVN_PATH := bitbake/branches/bitbake-1.6
 else
-BB_SVN_PATH := bitbake/branches/bitbake-1.8
+BB_SVN_PATH := bitbake/tags/bitbake-1.8.8
 endif
 
 .PHONY: all
