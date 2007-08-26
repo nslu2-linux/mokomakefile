@@ -57,9 +57,8 @@ all: openmoko-devel-image openmoko-devel-tools build-qemu
 
 .PHONY: force-rebuild
 force-rebuild:
-	perl -ne '/SRCDATE_([^ ]+)/ and print "$$1\n";' \
-		openmoko/trunk/oe/conf/distro/include/preferred-openmoko-versions.inc | \
-		xargs -i find build/tmp/{stamps,work}/* -name '{}-*' -prune -print | \
+	find build/tmp/work -name "*+svn*" -type d -print | \
+		perl -pe 'print "$$_"; s|tmp/work/(.*)|tmp/stamps/$$1.*|;' | \
 		xargs /bin/rm -rf
 
 .PHONY: setup
