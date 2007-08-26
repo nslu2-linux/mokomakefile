@@ -58,8 +58,9 @@ all: openmoko-devel-image openmoko-devel-tools build-qemu
 .PHONY: force-rebuild
 force-rebuild:
 	find build/tmp/work -name "*+svn*" -type d -print | \
-		perl -pe 'print "$$_"; s|tmp/work/(.*)|tmp/stamps/$$1.*|;' | \
 		xargs /bin/rm -rf
+	find build/tmp/stamps -name "*+svn*" -type f -print | \
+		xargs /bin/rm -f
 
 .PHONY: setup
 setup:  check-generation setup-patches \
