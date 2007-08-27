@@ -429,27 +429,42 @@ run-qemu-vnc: stamps/qemu build/qemu/openmoko/openmoko-sd.image
 		-kernel openmoko/openmoko-kernel.bin )
 
 .PHONY: flash-neo-official
-flash-neo-official: stamps/openmoko-devel-tools stamps/images
+flash-neo-official: flash-neo-kernel-official flash-neo-rootfs-official
+
+.PHONY: flash-neo-kernel-official
+flash-neo-kernel-official: stamps/openmoko-devel-tools stamps/images
 	( cd build && \
 		sudo ./tmp/staging/`uname -m`-`uname -s | tr '[A-Z]' '[a-z]'`/bin/dfu-util \
 		--device 0x1457:0x5119 -a kernel -D `ls -t ../images/openmoko/uImage-*.bin | head -1` )
+
+.PHONY: flash-neo-rootfs-official
+flash-neo-rootfs-official: stamps/openmoko-devel-tools stamps/images
 	( cd build && \
 		sudo ./tmp/staging/`uname -m`-`uname -s | tr '[A-Z]' '[a-z]'`/bin/dfu-util \
 		--device 0x1457:0x5119 -a rootfs -D `ls -t ../images/openmoko/*.jffs2 | head -1` )
 
 .PHONY: flash-neo-local
-flash-neo-local: stamps/openmoko-devel-tools stamps/openmoko-devel-image
+flash-neo-local: flash-neo-kernel-local flash-neo-rootfs-local
+
+.PHONY: flash-neo-kernel-local
+flash-neo-kernel-local: stamps/openmoko-devel-tools stamps/openmoko-devel-image
 ifeq ("${OPENMOKO_GENERATION}","2007.1")
 	( cd build && \
 		sudo ./tmp/staging/`uname -m`-`uname -s | tr '[A-Z]' '[a-z]'`/bin/dfu-util \
 		--device 0x1457:0x5119 -a kernel -D `ls -t tmp/deploy/images/uImage-*.bin | head -1` )
-	( cd build && \
-		sudo ./tmp/staging/`uname -m`-`uname -s | tr '[A-Z]' '[a-z]'`/bin/dfu-util \
-		--device 0x1457:0x5119 -a rootfs -D `ls -t tmp/deploy/images/*.jffs2 | head -1` )
 else
 	( cd build && \
 		sudo ./tmp/staging/`uname -m`-`uname -s | tr '[A-Z]' '[a-z]'`/bin/dfu-util \
 		--device 0x1457:0x5119 -a kernel -D `ls -t tmp/deploy/glibc/images/fic-gta01/uImage-*.bin | head -1` )
+endif
+
+.PHONY: flash-neo-rootfs-local
+flash-neo-rootfs-local: stamps/openmoko-devel-tools stamps/openmoko-devel-image
+ifeq ("${OPENMOKO_GENERATION}","2007.1")
+	( cd build && \
+		sudo ./tmp/staging/`uname -m`-`uname -s | tr '[A-Z]' '[a-z]'`/bin/dfu-util \
+		--device 0x1457:0x5119 -a rootfs -D `ls -t tmp/deploy/images/*.jffs2 | head -1` )
+else
 	( cd build && \
 		sudo ./tmp/staging/`uname -m`-`uname -s | tr '[A-Z]' '[a-z]'`/bin/dfu-util \
 		--device 0x1457:0x5119 -a rootfs -D `ls -t tmp/deploy/glibc/images/fic-gta01/*.jffs2 | head -1` )
