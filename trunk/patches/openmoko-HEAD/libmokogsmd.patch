@@ -1,0 +1,15 @@
+--- openmoko/trunk/src/target/OM-2007.2/libraries/libmokogsmd2/libmokogsmd/moko-gsmd-connection.c~	2007-08-21 07:08:36.000000000 +0930
++++ openmoko/trunk/src/target/OM-2007.2/libraries/libmokogsmd2/libmokogsmd/moko-gsmd-connection.c	2007-08-27 18:31:01.000000000 +0930
+@@ -362,6 +362,12 @@
+         case GSMD_EVT_CIPHER:
+             /* moko_gsmd_connection_signals[SIGNAL_GSMD_EVT_CIPHER];*/
+             break;
++        case GSMD_EVT_IN_CBM:
++            /* moko_gsmd_connection_signals[SIGNAL_GSMD_IN_CBM];*/
++            break;
++        case GSMD_EVT_IN_DS:
++            /* moko_gsmd_connection_signals[SIGNAL_GSMD_IN_DS];*/
++            break;
+         default:
+             g_critical( "_moko_gsmd_connection_eventhandler: %s %d",
+                         "unhandled event type =", 
