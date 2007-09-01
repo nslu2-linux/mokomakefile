@@ -53,7 +53,7 @@ BB_SVN_PATH := bitbake/tags/bitbake-1.8.8
 endif
 
 .PHONY: all
-all: openmoko-devel-image openmoko-devel-tools build-qemu
+all: openmoko-devel-image openmoko-devel-tools build-qemu openmoko-feed
 
 .PHONY: force-rebuild
 force-rebuild:
@@ -141,7 +141,9 @@ OE.mtn:
 	  mv OE.mtn.partial OE.mtn )
 
 .PHONY: setup-mtn
-setup-mtn stamps/OE.mtn: OE.mtn
+setup-mtn stamps/OE.mtn:
+	[ -e OE.mtn ] || \
+	${MAKE} OE.mtn
 	[ -e stamps/OE.mtn ] || \
 	( ${MTN} --db=OE.mtn db migrate && \
 	  ${MTN} --db=OE.mtn pull monotone.openembedded.org org.openembedded.dev )
@@ -348,6 +350,16 @@ openmoko-devel-tools stamps/openmoko-devel-tools: \
 	  bitbake dfu-util-native openocd-native )
 	[ -d stamps ] || mkdir stamps
 	touch stamps/openmoko-devel-tools
+
+.PHONY: openmoko-feed
+openmoko-feed stamps/openmoko-feed: \
+		stamps/openmoko stamps/bitbake \
+		stamps/openembedded stamps/patches \
+		build/conf/local.conf setup-env
+	( cd build && . ../setup-env && \
+	  bitbake openmoko-feed )
+	[ -d stamps ] || mkdir stamps
+	touch stamps/openmoko-feed
 
 .PHONY: qemu
 qemu: setup-qemu build-qemu download-images flash-qemu-official run-qemu
