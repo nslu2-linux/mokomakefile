@@ -55,6 +55,15 @@ endif
 .PHONY: all
 all: openmoko-devel-image openmoko-devel-tools build-qemu openmoko-feed
 
+.PHONY: image
+image: openmoko-devel-image
+
+.PHONY: tools
+tools: openmoko-devel-tools
+
+.PHONY: feed
+feed: openmoko-feed
+
 .PHONY: force-rebuild
 force-rebuild:
 	find build/tmp/work -name "*+svn*" -type d -print | \
