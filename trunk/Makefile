@@ -332,14 +332,14 @@ prefetch-sources: stamps/openmoko stamps/bitbake \
 		stamps/openembedded stamps/patches \
 		build/conf/local.conf setup-env
 	( cd build && . ../setup-env && \
-	  bitbake -c fetch openmoko-devel-image )
+	  bitbake -c fetch openmoko-devel-image uboot-openmoko )
 
 .PHONY: remove-work
 remove-work: stamps/openmoko stamps/bitbake \
 		stamps/openembedded stamps/patches \
 		build/conf/local.conf setup-env
 	( cd build && . ../setup-env && \
-	  bitbake -c rm_work openmoko-devel-image )
+	  bitbake -c rm_work openmoko-devel-image uboot-openmoko )
 
 .PHONY: openmoko-devel-image
 openmoko-devel-image stamps/openmoko-devel-image: \
@@ -347,7 +347,7 @@ openmoko-devel-image stamps/openmoko-devel-image: \
 		stamps/openembedded stamps/patches \
 		build/conf/local.conf setup-env
 	( cd build && . ../setup-env && \
-	  bitbake openmoko-devel-image )
+	  bitbake openmoko-devel-image uboot-openmoko )
 	[ -d stamps ] || mkdir stamps
 	touch stamps/openmoko-devel-image
 
