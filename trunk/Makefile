@@ -29,6 +29,7 @@ OPENMOKO_MTN_REV = HEAD
 endif
 
 MTN := mtn
+MKDOSFS := /sbin/mkdosfs
 
 ifneq ("${OPENMOKO_MTN_REV}","HEAD")
 MTN_REV_FLAGS = -r ${OPENMOKO_MTN_REV}
@@ -421,7 +422,7 @@ else
 endif
 
 build/qemu/openmoko/openmoko-sd.image:
-	( cd build/qemu && /sbin/mkdosfs -C -F 32 -v openmoko/openmoko-sd.image 500000 )
+	( cd build/qemu && ${MKDOSFS} -C -F 32 -v openmoko/openmoko-sd.image 500000 )
 
 .PHONY: run-qemu
 run-qemu: stamps/qemu build/qemu/openmoko/openmoko-sd.image
