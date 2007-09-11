@@ -219,7 +219,8 @@ setup-config build/conf/local.conf:
 	[ -e build/conf/local.conf ] || \
 	( echo 'MACHINE = "fic-gta01"' > build/conf/local.conf ; \
 	  echo 'DISTRO = "openmoko"' >> build/conf/local.conf ; \
-	  echo 'BUILD_ARCH = "'`uname -m`'"' >> build/conf/local.conf )
+	  echo 'BUILD_ARCH = "'`uname -m`'"' >> build/conf/local.conf ; \
+	  echo 'INHERIT += "rm_work"' >> build/conf/local.conf )
 ifneq ("${OPENMOKO_GENERATION}","2007.1")
 	rm -f build/conf/site.conf
 	( ln -sfn ../../openmoko/trunk/src/host/openembedded/site.conf build/conf/site.conf )
