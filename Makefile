@@ -526,6 +526,17 @@ else
 	mcopy -i build/qemu/openmoko/openmoko-sd.image -v build/tmp/deploy/glibc/ipk/*/$*_*.ipk ::
 endif
 
+.PHONY: clean
+clean: clean-openembedded clean-qemu
+
+.PHONY: clean-openembedded
+clean-openembedded:
+	rm -rf build/tmp stamps/openmoko-devel-image
+
+.PHONY: clean-qemu
+clean-qemu:
+	rm -rf build/qemu stamps/qemu
+
 .PHONY: clobber
 clobber: clobber-bitbake clobber-openmoko clobber-openembedded clobber-qemu
 
@@ -542,9 +553,8 @@ clobber-openmoko:
 	rm -rf openmoko stamps/openmoko
 
 .PHONY: clobber-openembedded
-clobber-openembedded:
-	rm -rf build/tmp openembedded stamps/openembedded stamps/openmoko-devel-image
+clobber-openembedded: clean-openembedded
+	rm -rf openembedded stamps/openembedded
 
 .PHONY: clobber-qemu
-clobber-qemu:
-	rm -rf build/qemu stamps/qemu
+clobber-qemu: clean-qemu
