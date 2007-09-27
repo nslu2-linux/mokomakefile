@@ -531,7 +531,10 @@ clean: clean-openembedded clean-qemu
 
 .PHONY: clean-openembedded
 clean-openembedded:
-	rm -rf build/tmp stamps/openmoko-devel-image
+	rm -rf build/tmp \
+		stamps/openmoko-devel-image \
+		stamps/openmoko-devel-tools \
+		stamps/openmoko-feed
 
 .PHONY: clean-qemu
 clean-qemu:
