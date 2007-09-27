@@ -527,7 +527,7 @@ else
 endif
 
 .PHONY: clobber
-clobber: clobber-patches clobber-bitbake clobber-openmoko clobber-openembedded clobber-qemu
+clobber: clobber-bitbake clobber-openmoko clobber-openembedded clobber-qemu
 
 .PHONY: clobber-patches
 clobber-patches:
