@@ -418,7 +418,7 @@ flash-qemu-local: stamps/qemu stamps/openmoko-devel-image
 ifeq ("${OPENMOKO_GENERATION}","2007.1")
 	( cd build/qemu && openmoko/flash.sh ../tmp/deploy/images )
 else
-	( cd build/qemu && openmoko/flash.sh ../tmp/deploy/glibc/images/fic-gta01 )
+	( cd build/qemu && openmoko/flash.sh ../tmp/deploy/glibc/images/neo1973 )
 endif
 
 build/qemu/openmoko/openmoko-sd.image:
