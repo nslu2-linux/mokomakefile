@@ -478,7 +478,7 @@ ifeq ("${OPENMOKO_GENERATION}","2007.1")
 else
 	( cd build && \
 		sudo ./tmp/staging/`uname -m`-`uname -s | tr '[A-Z]' '[a-z]'`/bin/dfu-util \
-		--device 0x1457:0x5119 -a kernel -D `ls -t tmp/deploy/glibc/images/fic-gta01/uImage-*.bin | head -1` )
+		--device 0x1457:0x5119 -a kernel -D `ls -t tmp/deploy/glibc/images/neo1973/uImage-*.bin | head -1` )
 endif
 
 .PHONY: flash-neo-rootfs-local
@@ -490,7 +490,7 @@ ifeq ("${OPENMOKO_GENERATION}","2007.1")
 else
 	( cd build && \
 		sudo ./tmp/staging/`uname -m`-`uname -s | tr '[A-Z]' '[a-z]'`/bin/dfu-util \
-		--device 0x1457:0x5119 -a rootfs -D `ls -t tmp/deploy/glibc/images/fic-gta01/*.jffs2 | head -1` )
+		--device 0x1457:0x5119 -a rootfs -D `ls -t tmp/deploy/glibc/images/neo1973/*.jffs2 | head -1` )
 endif
 
 .PHONY: push-openembedded
