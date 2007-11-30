@@ -17,16 +17,11 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor,
 # Boston, MA  02110-1301, USA
 
-# OPENMOKO_GENERATION = 2007.1
 OPENMOKO_GENERATION = 2007.2
 
 OPENMOKO_SVN_REV = HEAD
 BITBAKE_SVN_REV = HEAD
-ifeq ("${OPENMOKO_GENERATION}","2007.1")
-OPENMOKO_MTN_REV = e2dbb52fe39df7ef786b6068f6178f29508dfded
-else
 OPENMOKO_MTN_REV = HEAD
-endif
 
 MTN := mtn
 MKDOSFS := /sbin/mkdosfs
@@ -35,23 +30,17 @@ ifneq ("${OPENMOKO_MTN_REV}","HEAD")
 MTN_REV_FLAGS = -r ${OPENMOKO_MTN_REV}
 endif
 
-OE_SNAPSHOT_SITE := http://www.openembedded.org/snapshots
+OE_SNAPSHOT_SITE := http://downloads.openmoko.org/OE/snapshots
+
+OM_MONOTONE_SITE := monotone.openmoko.org
 
 # Set it back to these (svn:// protocol) when anon svn is fixed.
 # MM_SVN_SITE := svn.projects.openmoko.org
 # MM_SVN_PATH := /var/lib/gforge/chroot/svnroot/mokomakefile
 MM_SVN_SITE := svn.nslu2-linux.org
-ifeq ("${OPENMOKO_GENERATION}","2007.1")
-MM_SVN_PATH := svnroot/mokomakefile/branches/OM-2007.1
-else
 MM_SVN_PATH := svnroot/mokomakefile/trunk
-endif
 
-ifeq ("${OPENMOKO_GENERATION}","2007.1")
-BB_SVN_PATH := bitbake/branches/bitbake-1.6
-else
 BB_SVN_PATH := bitbake/tags/bitbake-1.8.8
-endif
 
 .PHONY: all
 all: openmoko-devel-image openmoko-devel-tools build-qemu openmoko-feed
@@ -82,15 +71,6 @@ update: check-generation update-mtn update-patches update-openembedded update-bi
 
 .PHONY: check-generation
 check-generation:
-ifeq ("${OPENMOKO_GENERATION}","2007.1")
-	@ echo "   ___                               _           ____   ___   ___ _____ _ "
-	@ echo "  /___\_ __   ___ _ __   /\/\   ___ | | _____   |___ \ / _ \ / _ \___  / |"
-	@ echo " //  // '_ \ / _ \ '_ \ /    \ / _ \| |/ / _ \    __) | | | | | | | / /| |"
-	@ echo "/ \_//| |_) |  __/ | | / /\/\ \ (_) |   < (_) |  / __/| |_| | |_| |/ /_| |"
-	@ echo "\___/ | .__/ \___|_| |_\/    \/\___/|_|\_\___/  |_____|\___/ \___//_/(_)_|"
-	@ echo "      |_|                                                                 "
-	@ echo
-else
 	@ echo "   ___                               _           ____   ___   ___ _____ ____  "
 	@ echo "  /___\_ __   ___ _ __   /\/\   ___ | | _____   |___ \ / _ \ / _ \___  |___ \ "
 	@ echo " //  // '_ \ / _ \ '_ \ /    \ / _ \| |/ / _ \    __) | | | | | | | / /  __) |"
@@ -98,31 +78,9 @@ else
 	@ echo "\___/ | .__/ \___|_| |_\/    \/\___/|_|\_\___/  |_____|\___/ \___//_/(_)_____|"
 	@ echo "      |_|                                                                     "
 	@ echo
-endif
 	[ ! -e stamps/bitbake ] || \
 	( grep -e '${BB_SVN_PATH}' bitbake/.svn/entries > /dev/null ) || \
 	( rm -rf bitbake stamps/bitbake patches stamps/patches )
-ifeq ("${OPENMOKO_GENERATION}","2007.1")
-	[ ! -e stamps/openembedded ] || \
-	( grep -e '${OPENMOKO_MTN_REV}' openembedded/_MTN/revision > /dev/null ) || \
-	( rm -rf openembedded stamps/openembedded && mv build build-OM-2007.2 )
-	[ ! -e build-OM-2007.1 ] || \
-	( mv build-OM-2007.1 build )
-	[ ! -e setup-env ] || \
-	( grep -e '$${OMDIR}/oe' setup-env > /dev/null ) || \
-	( rm -f setup-env )
-else
-	[ ! -e stamps/openembedded ] || \
-	[ -z "`grep -e 'e2dbb52fe39df7ef786b6068f6178f29508dfded' openembedded/_MTN/revision`" ] || \
-	( rm -rf openembedded stamps/openembedded && mv build build-OM-2007.1 )
-	[ ! -e build-OM-2007.2 ] || \
-	( mv build-OM-2007.2 build )
-	[ ! -e setup-env ] || \
-	[ -z "`grep -e '$${OMDIR}/oe' setup-env`" ] || \
-	( rm -f setup-env )
-	[ ! -e oe ] || \
-	( rm -f oe )
-endif
 
 .PHONY: setup-bitbake
 setup-bitbake stamps/bitbake: stamps/patches
@@ -156,7 +114,7 @@ setup-mtn stamps/OE.mtn:
 	${MAKE} OE.mtn
 	[ -e stamps/OE.mtn ] || \
 	( ${MTN} --db=OE.mtn db migrate && \
-	  ${MTN} --db=OE.mtn pull monotone.openembedded.org org.openembedded.dev )
+	  ${MTN} --db=OE.mtn pull ${OM_MONOTONE_SITE} org.openembedded.dev )
 	[ -d stamps ] || mkdir stamps
 	touch stamps/OE.mtn
 
@@ -179,10 +137,6 @@ setup-openembedded stamps/openembedded: stamps/OE.mtn stamps/patches
 setup-openmoko-developer: stamps/patches
 	[ ! -e openmoko ] || ( mv openmoko openmoko-user )
 	( svn co -r ${OPENMOKO_SVN_REV} https://svn.openmoko.org/ openmoko )
-ifeq ("${OPENMOKO_GENERATION}","2007.1")
-	[ -e oe ] || \
-	( ln -sfn openmoko/trunk/oe . )
-endif
 	rm -f openmoko/patches
 	[ ! -e patches/openmoko-${OPENMOKO_SVN_REV}/series ] || \
 	( ln -sfn ../patches/openmoko-${OPENMOKO_SVN_REV} openmoko/patches )
@@ -195,10 +149,6 @@ endif
 setup-openmoko stamps/openmoko: stamps/patches
 	[ -e stamps/openmoko ] || [ -e openmoko/.svn/entries ] || \
 	( svn co -r ${OPENMOKO_SVN_REV} http://svn.openmoko.org/ openmoko )
-ifeq ("${OPENMOKO_GENERATION}","2007.1")
-	[ -e oe ] || \
-	( ln -sfn openmoko/trunk/oe . )
-endif
 	rm -f openmoko/patches
 	[ ! -e patches/openmoko-${OPENMOKO_SVN_REV}/series ] || \
 	( ln -sfn ../patches/openmoko-${OPENMOKO_SVN_REV} openmoko/patches )
@@ -222,10 +172,8 @@ setup-config build/conf/local.conf:
 	  echo 'DISTRO = "openmoko"' >> build/conf/local.conf ; \
 	  echo 'BUILD_ARCH = "'`uname -m`'"' >> build/conf/local.conf ; \
 	  echo 'INHERIT += "rm_work"' >> build/conf/local.conf )
-ifneq ("${OPENMOKO_GENERATION}","2007.1")
 	rm -f build/conf/site.conf
 	( ln -sfn ../../openmoko/trunk/src/host/openembedded/site.conf build/conf/site.conf )
-endif
 
 .PHONY: setup-machine-neo
 setup-machine-neo: setup-machine-fic-gta01
@@ -241,15 +189,9 @@ setup-machine-%: setup-config
 setup-env:
 	[ -e setup-env ] || \
 	echo 'export OMDIR="'`pwd`'"' > setup-env
-ifeq ("${OPENMOKO_GENERATION}","2007.1")
-	echo \
-	'export BBPATH="$${OMDIR}/build:$${OMDIR}/oe:$${OMDIR}/openembedded"' \
-		>> setup-env
-else
 	echo \
 	'export BBPATH="$${OMDIR}/build:$${OMDIR}/openembedded"' \
 		>> setup-env
-endif
 	echo \
 	'export PYTHONPATH="$${OMDIR}/bitbake/libbitbake"' \
 		>> setup-env
@@ -259,23 +201,13 @@ endif
 
 .PHONY: update-makefile
 update-makefile:
-ifeq ("${OPENMOKO_GENERATION}","2007.1")
-	( wget -O Makefile.new http://svn.nslu2-linux.org/svnroot/mokomakefile/branches/OM-2007.1/Makefile && \
-	  mv Makefile.new Makefile )
-else
 	( wget -O Makefile.new http://svn.nslu2-linux.org/svnroot/mokomakefile/trunk/Makefile && \
 	  mv Makefile.new Makefile )
-endif
 
 .PHONY: check-makefile
 check-makefile:
-ifeq ("${OPENMOKO_GENERATION}","2007.1")
-	( wget -O - http://svn.nslu2-linux.org/svnroot/mokomakefile/branches/OM-2007.1/Makefile | \
-	  diff -u Makefile - )
-else
 	( wget -O - http://svn.nslu2-linux.org/svnroot/mokomakefile/trunk/Makefile | \
 	  diff -u Makefile - )
-endif
 
 .PHONY: update-bitbake
 update-bitbake: stamps/bitbake
@@ -293,7 +225,7 @@ update-bitbake: stamps/bitbake
 .PHONY: update-mtn
 update-mtn: stamps/OE.mtn
 	if [ "${OPENMOKO_MTN_REV}" != "`(cd openembedded && ${MTN} automate get_base_revision_id)`" ] ; then \
-		${MTN} --db=OE.mtn pull monotone.openembedded.org org.openembedded.dev ; \
+		${MTN} --db=OE.mtn pull ${OM_MONOTONE_SITE} org.openembedded.dev ; \
 	fi
 
 .PHONY: update-openembedded
@@ -415,11 +347,7 @@ flash-qemu-official: stamps/qemu stamps/images
 
 .PHONY: flash-qemu-local
 flash-qemu-local: stamps/qemu stamps/openmoko-devel-image
-ifeq ("${OPENMOKO_GENERATION}","2007.1")
-	( cd build/qemu && openmoko/flash.sh ../tmp/deploy/images )
-else
 	( cd build/qemu && openmoko/flash.sh ../tmp/deploy/glibc/images/neo1973 )
-endif
 
 build/qemu/openmoko/openmoko-sd.image:
 	( cd build/qemu && ${MKDOSFS} -C -F 32 -v openmoko/openmoko-sd.image 500000 )
@@ -471,27 +399,15 @@ flash-neo-local: flash-neo-kernel-local flash-neo-rootfs-local
 
 .PHONY: flash-neo-kernel-local
 flash-neo-kernel-local: stamps/openmoko-devel-tools stamps/openmoko-devel-image
-ifeq ("${OPENMOKO_GENERATION}","2007.1")
-	( cd build && \
-		sudo ./tmp/staging/`uname -m`-`uname -s | tr '[A-Z]' '[a-z]'`/bin/dfu-util \
-		--device 0x1457:0x5119 -a kernel -D `ls -t tmp/deploy/images/uImage-*.bin | head -1` )
-else
 	( cd build && \
 		sudo ./tmp/staging/`uname -m`-`uname -s | tr '[A-Z]' '[a-z]'`/bin/dfu-util \
 		--device 0x1457:0x5119 -a kernel -D `ls -t tmp/deploy/glibc/images/neo1973/uImage-*.bin | head -1` )
-endif
 
 .PHONY: flash-neo-rootfs-local
 flash-neo-rootfs-local: stamps/openmoko-devel-tools stamps/openmoko-devel-image
-ifeq ("${OPENMOKO_GENERATION}","2007.1")
-	( cd build && \
-		sudo ./tmp/staging/`uname -m`-`uname -s | tr '[A-Z]' '[a-z]'`/bin/dfu-util \
-		--device 0x1457:0x5119 -a rootfs -D `ls -t tmp/deploy/images/*.jffs2 | head -1` )
-else
 	( cd build && \
 		sudo ./tmp/staging/`uname -m`-`uname -s | tr '[A-Z]' '[a-z]'`/bin/dfu-util \
 		--device 0x1457:0x5119 -a rootfs -D `ls -t tmp/deploy/glibc/images/neo1973/*.jffs2 | head -1` )
-endif
 
 .PHONY: push-openembedded
 push-openembedded: update-mtn openembedded/_MTN/revision
@@ -504,7 +420,7 @@ push-openembedded: update-mtn openembedded/_MTN/revision
 		!= "1" ] ; then \
 	  ${MTN} --db=OE.mtn merge -b org.openembedded.dev ; \
 	fi
-	( cd openembedded && ${MTN} push monotone.openembedded.org org.openembedded.dev )
+	( cd openembedded && ${MTN} push ${OM_MONOTONE_SITE} org.openembedded.dev )
 
 .PHONY: build-package-%
 build-package-%:
@@ -520,11 +436,7 @@ clean-package-%:
 
 .PHONY: qemu-copy-package-%
 qemu-copy-package-%: build/qemu/openmoko/openmoko-sd.image
-ifeq ("${OPENMOKO_GENERATION}","2007.1")
-	mcopy -i build/qemu/openmoko/openmoko-sd.image -v build/tmp/deploy/ipk/*/$*_*.ipk ::
-else
 	mcopy -i build/qemu/openmoko/openmoko-sd.image -v build/tmp/deploy/glibc/ipk/*/$*_*.ipk ::
-endif
 
 .PHONY: clean
 clean: clean-openembedded clean-qemu
