@@ -69,6 +69,14 @@ setup:  check-generation setup-patches \
 .PHONY: update
 update: check-generation update-mtn update-patches update-openembedded update-bitbake update-openmoko
 
+.PHONY: update-stable
+update-stable:
+	${MAKE} OM_MONOTONE_SITE=monotone.openmoko.org update
+
+.PHONY: update-bleeding-edge
+update-bleeding-edge:
+	${MAKE} OM_MONOTONE_SITE=monotone.openembedded.org update
+
 .PHONY: check-generation
 check-generation:
 	@ echo "   ___                               _           ____   ___   ___ _____ ____  "
