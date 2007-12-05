@@ -363,7 +363,7 @@ build/qemu/openmoko/openmoko-sd.image:
 .PHONY: run-qemu
 run-qemu: stamps/qemu build/qemu/openmoko/openmoko-sd.image
 	( cd build/qemu && arm-softmmu/qemu-system-arm \
-		-M neo -m 130 -usb -show-cursor \
+		-M gta01 -m 130 -usb -show-cursor \
 		-usbdevice keyboard \
 		-mtdblock openmoko/openmoko-flash.image \
 		-sd openmoko/openmoko-sd.image \
@@ -372,7 +372,7 @@ run-qemu: stamps/qemu build/qemu/openmoko/openmoko-sd.image
 .PHONY: run-qemu-snapshot
 run-qemu-snapshot: stamps/qemu build/qemu/openmoko/openmoko-sd.image
 	( cd build/qemu && arm-softmmu/qemu-system-arm \
-		-M neo -m 130 -usb -show-cursor -snapshot \
+		-M gta01 -m 130 -usb -show-cursor -snapshot \
 		-usbdevice keyboard \
 		-mtdblock openmoko/openmoko-flash.image \
 		-sd openmoko/openmoko-sd.image \
@@ -381,7 +381,7 @@ run-qemu-snapshot: stamps/qemu build/qemu/openmoko/openmoko-sd.image
 .PHONY: run-qemu-vnc
 run-qemu-vnc: stamps/qemu build/qemu/openmoko/openmoko-sd.image
 	( cd build/qemu && arm-softmmu/qemu-system-arm \
-		-M neo -m 130 -usb -show-cursor \
+		-M gta01 -m 130 -usb -show-cursor \
 		-vnc localhost:1 -monitor stdio \
 		-mtdblock openmoko/openmoko-flash.image \
 		-sd openmoko/openmoko-sd.image \
