@@ -40,10 +40,12 @@ OM_MONOTONE_SITE := monotone.openmoko.org
 MM_SVN_SITE := svn.nslu2-linux.org
 MM_SVN_PATH := svnroot/mokomakefile/trunk
 
-BB_SVN_PATH := bitbake/tags/bitbake-1.8.8
+BB_SVN_PATH := tags/bitbake-1.8.8
 
 .PHONY: all
-all: openmoko-devel-image openmoko-devel-tools build-qemu openmoko-feed
+all: openmoko-devel-image openmoko-devel-tools \
+	build-qemu \
+	openmoko-feed openmoko-toolchain
 
 .PHONY: image
 image: openmoko-devel-image
@@ -53,6 +55,9 @@ tools: openmoko-devel-tools
 
 .PHONY: feed
 feed: openmoko-feed
+
+.PHONY: toolchain
+toolchain: openmoko-toolchain
 
 .PHONY: force-rebuild
 force-rebuild:
@@ -93,7 +98,8 @@ check-generation:
 .PHONY: setup-bitbake
 setup-bitbake stamps/bitbake: stamps/patches
 	[ -e stamps/bitbake ] || \
-	( svn co -r ${BITBAKE_SVN_REV} svn://svn.berlios.de/${BB_SVN_PATH} bitbake )
+	( svn co -r ${BITBAKE_SVN_REV} \
+		http://svn.berlios.de/svnroot/repos/bitbake/${BB_SVN_PATH} bitbake )
 	rm -f bitbake/patches
 	[ ! -e patches/bitbake-${BITBAKE_SVN_REV}/series ] || \
 	( ln -sfn ../patches/bitbake-${BITBAKE_SVN_REV} bitbake/patches )
@@ -311,6 +317,16 @@ openmoko-feed stamps/openmoko-feed: \
 	  bitbake openmoko-feed )
 	[ -d stamps ] || mkdir stamps
 	touch stamps/openmoko-feed
+
+.PHONY: openmoko-toolchain
+openmoko-toolchain stamps/openmoko-toolchain: \
+		stamps/openmoko stamps/bitbake \
+		stamps/openembedded stamps/patches \
+		build/conf/local.conf setup-env
+	( cd build && . ../setup-env && \
+	  bitbake task-toolchain-openmoko-sdk )
+	[ -d stamps ] || mkdir stamps
+	touch stamps/openmoko-toolchain
 
 .PHONY: qemu
 qemu: setup-qemu build-qemu download-images flash-qemu-official run-qemu
