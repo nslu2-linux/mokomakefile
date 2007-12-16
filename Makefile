@@ -150,7 +150,7 @@ setup-openembedded stamps/openembedded: stamps/OE.mtn stamps/patches
 .PHONY: setup-openmoko-developer
 setup-openmoko-developer: stamps/patches
 	[ ! -e openmoko ] || ( mv openmoko openmoko-user )
-	( svn co -r ${OPENMOKO_SVN_REV} https://svn.openmoko.org/ openmoko )
+	( mkdir openmoko && cd openmoko && svn co -r ${OPENMOKO_SVN_REV} https://svn.openmoko.org/trunk trunk && svn co -r ${OPENMOKO_SVN_REV} https://svn.openmoko.org/developers developers )
 	rm -f openmoko/patches
 	[ ! -e patches/openmoko-${OPENMOKO_SVN_REV}/series ] || \
 	( ln -sfn ../patches/openmoko-${OPENMOKO_SVN_REV} openmoko/patches )
@@ -161,8 +161,8 @@ setup-openmoko-developer: stamps/patches
 
 .PHONY: setup-openmoko
 setup-openmoko stamps/openmoko: stamps/patches
-	[ -e stamps/openmoko ] || [ -e openmoko/.svn/entries ] || \
-	( svn co -r ${OPENMOKO_SVN_REV} http://svn.openmoko.org/ openmoko )
+	[ -e stamps/openmoko ] || [ -e openmoko/trunk/.svn/entries ] || \
+	( mkdir openmoko && cd openmoko && svn co -r ${OPENMOKO_SVN_REV} https://svn.openmoko.org/trunk trunk && svn co -r ${OPENMOKO_SVN_REV} https://svn.openmoko.org/developers developers )
 	rm -f openmoko/patches
 	[ ! -e patches/openmoko-${OPENMOKO_SVN_REV}/series ] || \
 	( ln -sfn ../patches/openmoko-${OPENMOKO_SVN_REV} openmoko/patches )
@@ -266,8 +266,8 @@ update-openmoko: stamps/openmoko
 	[ ! -e openmoko/patches ] || \
 	( cd openmoko && quilt pop -a -f ) || true
 	[ ! -e openmoko/patches ] || \
-	( cd openmoko && svn revert -R . )
-	( cd openmoko && svn update -r ${OPENMOKO_SVN_REV} )
+	( cd openmoko && svn revert -R trunk && svn revert -R developers )
+	( cd openmoko && svn update -r ${OPENMOKO_SVN_REV} trunk && svn update -r ${OPENMOKO_SVN_REV} developers )
 	rm -f openmoko/patches
 	[ ! -e patches/openmoko-${OPENMOKO_SVN_REV}/series ] || \
 	( ln -sfn ../patches/openmoko-${OPENMOKO_SVN_REV} openmoko/patches )
