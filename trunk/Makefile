@@ -331,7 +331,7 @@ openmoko-toolchain stamps/openmoko-toolchain: \
 		stamps/openembedded stamps/patches \
 		build/conf/local.conf setup-env
 	( cd build && . ../setup-env && \
-	  bitbake task-toolchain-openmoko-sdk )
+	  bitbake meta-toolchain-openmoko )
 	[ -d stamps ] || mkdir stamps
 	touch stamps/openmoko-toolchain
 
