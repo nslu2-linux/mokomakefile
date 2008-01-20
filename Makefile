@@ -40,7 +40,7 @@ OM_MONOTONE_SITE := monotone.openmoko.org
 MM_SVN_SITE := svn.nslu2-linux.org
 MM_SVN_PATH := svnroot/mokomakefile/trunk
 
-BB_SVN_PATH := tags/bitbake-1.8.8
+BB_SVN_PATH := tags/bitbake-1.8.10
 
 .PHONY: all
 all: openmoko-devel-image openmoko-devel-tools \
