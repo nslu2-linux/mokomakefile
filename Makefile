@@ -43,12 +43,16 @@ MM_SVN_PATH := svnroot/mokomakefile/trunk
 BB_SVN_PATH := tags/bitbake-1.8.10
 
 .PHONY: all
-all: openmoko-devel-image openmoko-devel-tools \
+all: openmoko-devel-image openmoko-qtopia-image \
+	openmoko-devel-tools \
 	build-qemu \
 	openmoko-feed openmoko-toolchain
 
 .PHONY: image
 image: openmoko-devel-image
+
+.PHONY: qtopia
+qtopia: openmoko-qtopia-image
 
 .PHONY: tools
 tools: openmoko-devel-tools
@@ -286,16 +290,14 @@ prefetch-sources: stamps/openmoko stamps/bitbake \
 		stamps/openembedded stamps/patches \
 		build/conf/local.conf setup-env
 	( cd build && . ../setup-env && \
-	  ( ( bitbake -c fetch openmoko-devel-image uboot-openmoko ) || \
-	    ( bitbake -c fetch openmoko-devel-image u-boot-openmoko ) ) )
+	  ( bitbake -c fetch openmoko-devel-image u-boot-openmoko ) )
 
 .PHONY: remove-work
 remove-work: stamps/openmoko stamps/bitbake \
 		stamps/openembedded stamps/patches \
 		build/conf/local.conf setup-env
 	( cd build && . ../setup-env && \
-	  ( ( bitbake -c rm_work openmoko-devel-image uboot-openmoko ) || \
-	    ( bitbake -c rm_work openmoko-devel-image u-boot-openmoko ) ) )
+	  ( bitbake -c rm_work openmoko-devel-image u-boot-openmoko ) )
 
 .PHONY: openmoko-devel-image
 openmoko-devel-image stamps/openmoko-devel-image: \
@@ -303,10 +305,19 @@ openmoko-devel-image stamps/openmoko-devel-image: \
 		stamps/openembedded stamps/patches \
 		build/conf/local.conf setup-env
 	( cd build && . ../setup-env && \
-	  ( ( bitbake openmoko-devel-image uboot-openmoko ) || \
-	    ( bitbake openmoko-devel-image u-boot-openmoko ) ) )
+	  ( bitbake openmoko-devel-image u-boot-openmoko ) )
 	[ -d stamps ] || mkdir stamps
 	touch stamps/openmoko-devel-image
+
+.PHONY: openmoko-qtopia-image
+openmoko-qtopia-image stamps/openmoko-qtopia-image: \
+		stamps/openmoko stamps/bitbake \
+		stamps/openembedded stamps/patches \
+		build/conf/local.conf setup-env
+	( cd build && . ../setup-env && \
+	  ( bitbake openmoko-qtopia-image u-boot-openmoko ) )
+	[ -d stamps ] || mkdir stamps
+	touch stamps/openmoko-qtopia-image
 
 .PHONY: openmoko-devel-tools
 openmoko-devel-tools stamps/openmoko-devel-tools: \
@@ -441,7 +452,22 @@ flash-neo-kernel-local: stamps/openmoko-devel-tools stamps/openmoko-devel-image
 flash-neo-rootfs-local: stamps/openmoko-devel-tools stamps/openmoko-devel-image
 	( cd build && \
 		sudo ./tmp/staging/`uname -m`-`uname -s | tr '[A-Z]' '[a-z]'`/bin/dfu-util \
-		--device 0x1457:0x5119 -a rootfs -D `ls -t tmp/deploy/glibc/images/neo1973/*.jffs2 | head -1` )
+		--device 0x1457:0x5119 -a rootfs -D `ls -t tmp/deploy/glibc/images/neo1973/OpenMoko-openmoko-devel-image-*.jffs2 | head -1` )
+
+.PHONY: flash-neo-qtopia
+flash-neo-qtopia: flash-neo-kernel-qtopia flash-neo-rootfs-qtopia
+
+.PHONY: flash-neo-kernel-qtopia
+flash-neo-kernel-qtopia: stamps/openmoko-devel-tools stamps/openmoko-qtopia-image
+	( cd build && \
+		sudo ./tmp/staging/`uname -m`-`uname -s | tr '[A-Z]' '[a-z]'`/bin/dfu-util \
+		--device 0x1457:0x5119 -a kernel -D `ls -t tmp/deploy/glibc/images/neo1973/uImage-*.bin | head -1` )
+
+.PHONY: flash-neo-rootfs-qtopia
+flash-neo-rootfs-qtopia: stamps/openmoko-devel-tools stamps/openmoko-qtopia-image
+	( cd build && \
+		sudo ./tmp/staging/`uname -m`-`uname -s | tr '[A-Z]' '[a-z]'`/bin/dfu-util \
+		--device 0x1457:0x5119 -a rootfs -D `ls -t tmp/deploy/glibc/images/neo1973/OpenMoko-openmoko-qtopia-image-*.jffs2 | head -1` )
 
 .PHONY: push-openembedded
 push-openembedded: update-mtn openembedded/_MTN/revision
@@ -479,6 +505,7 @@ clean: clean-openembedded clean-qemu
 clean-openembedded:
 	rm -rf build/tmp \
 		stamps/openmoko-devel-image \
+		stamps/openmoko-qtopia-image \
 		stamps/openmoko-devel-tools \
 		stamps/openmoko-feed
 
