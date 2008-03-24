@@ -34,10 +34,7 @@ OE_SNAPSHOT_SITE := http://downloads.openmoko.org/OE/snapshots
 
 OM_MONOTONE_SITE := monotone.openmoko.org
 
-# Set it back to these (svn:// protocol) when anon svn is fixed.
-# MM_SVN_SITE := svn.projects.openmoko.org
-# MM_SVN_PATH := /var/lib/gforge/chroot/svnroot/mokomakefile
-MM_SVN_SITE := svn.nslu2-linux.org
+MM_SVN_SITE := svn.projects.openmoko.org
 MM_SVN_PATH := svnroot/mokomakefile/trunk
 
 BB_SVN_PATH := tags/bitbake-1.8.10
@@ -98,6 +95,18 @@ check-generation:
 	[ ! -e stamps/bitbake ] || \
 	( grep -e '${BB_SVN_PATH}' bitbake/.svn/entries > /dev/null ) || \
 	( rm -rf bitbake stamps/bitbake patches stamps/patches )
+	[ ! -e stamps/patches ] || \
+	( grep -e '${MM_SVN_SITE}/${MM_SVN_PATH}' patches/.svn/entries > /dev/null ) || \
+	( echo "You will need to run 'rm -rf patches stamps/patches' after" ; \
+	  echo "making sure you have no local changes in that tree." ; \
+	  echo "Then run 'make setup-patches' to get them from the new repo." ; \
+	  false )
+	[ ! -e stamps/openembedded ] || \
+	( grep -e 'org.openmoko.dev' openembedded/_MTN/options > /dev/null ) || \
+	( echo "You will need to run 'rm -rf openembedded stamps/openembedded' after" ; \
+	  echo "making sure you have no local changes in that tree." ; \
+	  echo "Then run 'make update-mtn setup-openembedded' to get the new branch." ; \
+	  false )
 
 .PHONY: setup-bitbake
 setup-bitbake stamps/bitbake: stamps/patches
@@ -132,17 +141,17 @@ setup-mtn stamps/OE.mtn:
 	${MAKE} OE.mtn
 	[ -e stamps/OE.mtn ] || \
 	( ${MTN} --db=OE.mtn db migrate && \
-	  ${MTN} --db=OE.mtn pull ${OM_MONOTONE_SITE} org.openembedded.dev )
+	  ${MTN} --db=OE.mtn pull ${OM_MONOTONE_SITE} '*' )
 	[ -d stamps ] || mkdir stamps
 	touch stamps/OE.mtn
 
 .PHONY: setup-openembedded
 setup-openembedded stamps/openembedded: stamps/OE.mtn stamps/patches
 	[ -e stamps/openembedded ] || \
-	( ${MTN} --db=OE.mtn checkout --branch=org.openembedded.dev \
+	( ${MTN} --db=OE.mtn checkout --branch=org.openmoko.dev \
 		${MTN_REV_FLAGS} openembedded ) || \
-	( ${MTN} --db=OE.mtn checkout --branch=org.openembedded.dev \
-		-r `${MTN} --db=OE.mtn automate heads org.openembedded.dev | head -n1` openembedded )
+	( ${MTN} --db=OE.mtn checkout --branch=org.openmoko.dev \
+		-r `${MTN} --db=OE.mtn automate heads org.openmoko.dev | head -n1` openembedded )
 	rm -f openembedded/patches
 	[ ! -e patches/openembedded-${OPENMOKO_MTN_REV}/series ] || \
 	( ln -sfn ../patches/openembedded-${OPENMOKO_MTN_REV} openembedded/patches )
@@ -226,12 +235,12 @@ setup-env:
 
 .PHONY: update-makefile
 update-makefile:
-	( wget -O Makefile.new http://svn.nslu2-linux.org/svnroot/mokomakefile/trunk/Makefile && \
+	( wget -O Makefile.new http://${MM_SVN_SITE}/${MM_SVN_PATH}/Makefile && \
 	  mv Makefile.new Makefile )
 
 .PHONY: check-makefile
 check-makefile:
-	( wget -O - http://svn.nslu2-linux.org/svnroot/mokomakefile/trunk/Makefile | \
+	( wget -O - http://${MM_SVN_SITE}/${MM_SVN_PATH}/Makefile | \
 	  diff -u Makefile - )
 
 .PHONY: update-bitbake
@@ -250,7 +259,7 @@ update-bitbake: stamps/bitbake
 .PHONY: update-mtn
 update-mtn: stamps/OE.mtn
 	if [ "${OPENMOKO_MTN_REV}" != "`(cd openembedded && ${MTN} automate get_base_revision_id)`" ] ; then \
-		${MTN} --db=OE.mtn pull ${OM_MONOTONE_SITE} org.openembedded.dev ; \
+		${MTN} --db=OE.mtn pull ${OM_MONOTONE_SITE} '*' ; \
 	fi
 
 .PHONY: update-openembedded
@@ -471,16 +480,16 @@ flash-neo-rootfs-qtopia: stamps/openmoko-devel-tools stamps/openmoko-qtopia-imag
 
 .PHONY: push-openembedded
 push-openembedded: update-mtn openembedded/_MTN/revision
-	if [ `${MTN} --db=OE.mtn automate heads org.openembedded.dev | wc -l` \
+	if [ `${MTN} --db=OE.mtn automate heads org.openmoko.dev | wc -l` \
 		!= "1" ] ; then \
-	  ${MTN} --db=OE.mtn merge -b org.openembedded.dev ; \
+	  ${MTN} --db=OE.mtn merge -b org.openmoko.dev ; \
 	fi
 	( cd openembedded && ${MTN} update )
-	if [ `${MTN} --db=OE.mtn automate heads org.openembedded.dev | wc -l` \
+	if [ `${MTN} --db=OE.mtn automate heads org.openmoko.dev | wc -l` \
 		!= "1" ] ; then \
-	  ${MTN} --db=OE.mtn merge -b org.openembedded.dev ; \
+	  ${MTN} --db=OE.mtn merge -b org.openmoko.dev ; \
 	fi
-	( cd openembedded && ${MTN} push ${OM_MONOTONE_SITE} org.openembedded.dev )
+	( cd openembedded && ${MTN} push ${OM_MONOTONE_SITE} org.openmoko.dev )
 
 .PHONY: build-package-%
 build-package-%:
